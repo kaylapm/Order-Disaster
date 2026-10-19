@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 16" shape-rendering="crispEdges">
+  <!-- Hat -->
+  <path fill="#e52521" d="M4 0h5v1h3v1H3V1h1z"/>
+  <!-- Hair & face -->
+  <path fill="#6b3a12" d="M3 2h3v1H3zM2 3h1v1H2zM4 3h1v1H4zM2 4h1v1H2zM4 4h2v1H4zM8 4h1v1H8zM2 5h2v1H2zM8 5h4v1H8zM8 3h1v1H8zM8 2h1v1H8z"/>
+  <path fill="#ffc99a" d="M6 2h2v1H6zM3 3h1v1H3zM5 3h3v1H5zM9 3h3v1H9zM3 4h1v1H3zM6 4h2v1H6zM9 4h3v1H9zM4 5h4v1H4zM4 6h7v1H4z"/>
+  <!-- Shirt -->
+  <path fill="#e52521" d="M3 7h2v1H3zM6 7h3v1H6zM2 8h3v1H2zM6 8h2v1H6zM9 8h3v1H9zM1 9h4v1H1zM9 9h4v1H9z"/>
+  <!-- Overalls -->
+  <path fill="#1d4ed8" d="M5 7h1v1H5zM5 8h1v1H5zM8 8h1v1H8zM5 9h4v1H5zM4 10h1v1H4zM6 10h2v1H6zM9 10h1v1H9zM4 11h6v1H4zM3 12h8v1H3zM3 13h3v1H3zM8 13h3v1H8z"/>
+  <!-- Buttons & gloves -->
+  <path fill="#fcd34d" d="M5 10h1v1H5zM8 10h1v1H8z"/>
+  <path fill="#ffc99a" d="M1 10h2v1H1zM10 10h2v1H10zM1 11h3v1H1zM10 11h3v1H10zM1 12h2v1H1zM11 12h2v1H11z"/>
+  <path fill="#e52521" d="M3 10h1v1H3zM9 11h1v1H9z" opacity="0"/>
+  <!-- Shoes -->
+  <path fill="#6b3a12" d="M2 14h3v1H2zM8 14h3v1H8zM1 15h4v1H1zM8 15h4v1H8z"/>
+</svg>

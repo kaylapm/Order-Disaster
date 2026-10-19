@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Order Disaster! - BPMN Bug Fixer Mario Retro Game</title>
+  <meta name="description" content="Game edukasi interaktif BPMN berbasis Super Mario Bros 8-Bit. Perbaiki alur proses bisnis yang kacau dan pasang simbol BPMN yang tepat di Smartboard!">
+
+  <!-- Google Fonts: Retro 8-bit & Modern Clean Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <!-- Favicon: Mario 8-Bit Retro Super Mushroom (Multi-format support for all browsers) -->
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+
+  <!-- Retro Stylesheet -->
+  <link rel="stylesheet" href="css/style.css?v=7.7">
+</head>
+<body>
+
+  <!-- Floating Retro 8-bit Cloud Decorations -->
+  <div class="retro-bg-clouds" aria-hidden="true">
+    <div class="cloud-item cloud-1"></div>
+    <div class="cloud-item cloud-2"></div>
+  </div>
+
+  <!-- ======================================================================
+       SCREEN 1: WELCOMING SCREEN / TITLE SCREEN
+       ====================================================================== -->
+  <section class="screen-view active" id="welcomeScreen">
+    <div class="welcome-screen-wrapper">
+      <div class="welcome-box">
+        <!-- Arcade Marquee Header & Audio Toggles -->
+        <div class="welcome-top-bar">
+          <div class="welcome-top-badge">
+            <span>SUPER BPMN BROS ARCADE LAB</span>
+          </div>
+          <div class="welcome-audio-controls">
+            <button type="button" class="pixel-btn-icon active audio-sfx-btn" id="welcomeToggleSoundBtn" title="Soundboard / Efek Suara (SFX)">SFX: ON</button>
+            <button type="button" class="pixel-btn-icon audio-bgm-btn" id="welcomeToggleBgmBtn" title="Musik Retro 8-Bit (BGM)">BGM: OFF</button>
+          </div>
+        </div>
+
+        <div class="welcome-hero-title">
+          <h1 class="welcome-main-title">THE ORDER DISASTER!</h1>
+          <div class="welcome-sub-title">BPMN 2.0 PROCESS BUG FIXER &amp; SWIMLANE SIMULATOR</div>
+        </div>
+
+        <div class="welcome-mario-scene">
+          <div class="pixel-mario-scene-left">
+            <div class="pixel-question-block" title="Hit for coins!">?</div>
+            <div class="pixel-mario-large"></div>
+          </div>
+          <div class="welcome-speech-text">
+            <div class="speech-headline">"Mamma Mia! Alur proses bisnis di 5 outlet sedang kacau balau!"</div>
+            <div class="speech-desc">Tolong atur urutan logisnya, benahi simbol BPMN (Start, Task, Gateway, End), dan pindahkan aktivitas ke Swimlane yang benar sebelum waktu habis!</div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="welcome-actions">
+          <button type="button" class="pixel-btn btn-welcome-start" id="welcomeStartBtn">
+            START GAME: PILIH KASUS
+          </button>
+          <button type="button" class="pixel-btn btn-welcome-briefing" id="welcomeBriefingBtn">
+            PANDUAN &amp; BRIEFING KILAT
+          </button>
+        </div>
+
+        <!-- Feature Badges (Minimalist & Clean) -->
+        <div class="welcome-features-list">
+          <div class="welcome-feat-item">
+            <div><b>5 Kasus Bisnis Realistis</b><div class="feat-sub">Level 1 (2x), Level 2 (2x), Level 3 (1x)</div></div>
+          </div>
+          <div class="welcome-feat-item">
+            <div><b>BPMN Swimlane Engine</b><div class="feat-sub">Ganti &amp; drag-drop alur antar peran</div></div>
+          </div>
+          <div class="welcome-feat-item">
+            <div><b>Smartboard Optimized</b><div class="feat-sub">Touch drag, tap-to-swap &amp; quick picker</div></div>
+          </div>
+          <div class="welcome-feat-item">
+            <div><b>Mario 8-Bit Chiptune</b><div class="feat-sub">Simulasi Mario melintasi diagram alur</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Copyright Notice by Kayla Putri Maharani -->
+      <footer class="global-page-footer">
+        <div class="global-copyright-pill">
+          <span class="cp-text">© 2026 <strong>The Order Disaster!</strong> • All Rights Reserved by <strong>Kayla Putri Maharani</strong></span>
+        </div>
+      </footer>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       SCREEN 2: CASE SELECTION SCREEN (WORLD SELECT)
+       ====================================================================== -->
+  <section class="screen-view" id="caseSelectScreen">
+    <div class="case-select-wrapper">
+      <div class="case-select-header">
+        <button type="button" class="pixel-btn" id="caseSelectBackBtn" style="background: #f1f5f9; color: #000;">
+          MENU UTAMA
+        </button>
+        <div class="case-header-title">
+          <h2>WORLD SELECT: PILIH KASUS PROSES BISNIS</h2>
+          <p>Pilih kasus yang ingin diperbaiki oleh tim kamu di Smartboard (Total 5 Kasus)</p>
+        </div>
+        <div class="case-header-actions" style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="pixel-btn-icon active audio-sfx-btn" id="caseToggleSoundBtn" title="Sound Effects">SFX: ON</button>
+          <button type="button" class="pixel-btn-icon audio-bgm-btn" id="caseToggleBgmBtn" title="Background Music">BGM: OFF</button>
+          <button type="button" class="pixel-btn" id="caseSelectBriefingBtn" style="background: #3b82f6; color: #fff;">
+            BRIEFING
+          </button>
+        </div>
+      </div>
+
+      <!-- Rendered dynamically by game.js: Level 1 (2 cases), Level 2 (2 cases), Level 3 (1 case) -->
+      <div id="casesCardsContainer" class="cases-tier-container"></div>
+
+      <!-- Copyright Notice by Kayla Putri Maharani -->
+      <footer class="global-page-footer">
+        <div class="global-copyright-pill">
+          <span class="cp-text">© 2026 <strong>The Order Disaster!</strong> • All Rights Reserved by <strong>Kayla Putri Maharani</strong></span>
+        </div>
+      </footer>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       SCREEN 3: GAMEPLAY POV SCREEN (THE DISASTER BOARD)
+       ====================================================================== -->
+  <div class="screen-view" id="gamePlayScreen">
+
+    <!-- Top HUD -->
+    <header class="mario-hud">
+      <div class="hud-group">
+        <button type="button" class="pixel-btn-icon" id="hudHomeBtn" title="Kembali ke Menu Pilih Kasus" style="background: #eab308; color: #000; font-weight: bold;">
+          PILIH KASUS
+        </button>
+
+        <div class="hud-item">
+          <span class="hud-label">MARIO</span>
+          <span class="hud-val" id="scoreVal">000000</span>
+        </div>
+
+        <div class="hud-item">
+          <span class="hud-label">COINS</span>
+          <span class="hud-val"><span id="coinsVal">x00</span></span>
+        </div>
+
+        <div class="hud-item">
+          <span class="hud-label">WORLD</span>
+          <span class="hud-val" id="worldVal">1-1</span>
+        </div>
+
+        <div class="hud-item">
+          <span class="hud-label">TIME</span>
+          <span class="hud-val" id="timeVal">05:00</span>
+        </div>
+
+        <div class="hud-item">
+          <span class="hud-label">LIVES</span>
+          <span class="hud-val"><span id="livesVal">x3</span></span>
+        </div>
+      </div>
+
+      <!-- Quick Smartboard / Audio Controls -->
+      <div class="hud-controls">
+        <button type="button" class="pixel-btn-icon active audio-sfx-btn" id="toggleSoundBtn" title="SFX">SFX: ON</button>
+        <button type="button" class="pixel-btn-icon audio-bgm-btn" id="toggleBgmBtn" title="BGM">BGM: OFF</button>
+        <button type="button" class="pixel-btn-icon" id="pauseTimerBtn" title="Jeda/Lanjutkan Countdown">PAUSE</button>
+        <button type="button" class="pixel-btn-icon" id="fullscreenBtn" title="Tampilan Layar Penuh Smartboard">FULLSCREEN</button>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="main-wrapper">
+
+      <!-- Disaster Storyline & Level Navigation Banner -->
+      <section class="story-banner">
+        <div class="story-header">
+          <div class="story-texts">
+            <h1 id="levelTitle">WORLD 1-1: Kopi Drive-Thru Bikin Bangkrut!</h1>
+            <p id="levelStory">"Kekacauan total di Drive-thru! Barista menuang espresso ke meja kosong sebelum kasir menerima pesanan pelanggan!"</p>
+          </div>
+        </div>
+
+        <!-- Level Selector Pills (5 Cases) -->
+        <nav class="level-selector-nav" id="levelSelectorNav" aria-label="Level Selector">
+          <!-- Rendered dynamically -->
+        </nav>
+      </section>
+
+      <!-- Study Case Narrative Card -->
+      <section class="study-case-card">
+        <div class="case-narrative-header">
+          <span class="narrative-badge">STUDY CASE NARASI</span>
+          <span class="narrative-title">ALUR PROSES BISNIS YANG DIHARAPKAN:</span>
+        </div>
+        <div class="case-narrative-content" id="caseNarrativeText">
+          <!-- Populated dynamically by game.js -->
+        </div>
+      </section>
+
+      <!-- Facilitator & Player Action Controls Toolbar (Moved to top) -->
+      <div class="game-action-toolbar">
+        <button type="button" class="pixel-btn btn-briefing" id="briefingBtn">
+          BRIEFING KILAT
+        </button>
+        <button type="button" class="pixel-btn btn-reset" id="resetBtn">
+          RESET ALUR
+        </button>
+        <button type="button" class="pixel-btn btn-reveal" id="revealBtn">
+          BUKA SOLUSI
+        </button>
+        <button type="button" class="pixel-btn btn-run" id="runVerifyBtn">
+          RUN &amp; VERIFY FLOW
+        </button>
+        <button type="button" class="pixel-btn btn-add-time" id="addTimeBtn">
+          +1 MENIT
+        </button>
+      </div>
+
+      <!-- ====================================================================
+           BPMN 2.0 POOL & SWIMLANE LIVE VISUALIZER
+           ==================================================================== -->
+      <section class="bpmn-visualizer-container">
+        <div class="visualizer-header-bar">
+          <div class="visualizer-title">
+            <span>BPMN 2.0 POOL &amp; SWIMLANE LIVE VISUALIZER</span>
+            <span style="font-size: 8px; color: #16a34a; background: #dcfce7; padding: 3px 6px; border: 1px solid #16a34a; border-radius: 2px;">LIVE BPMN ENGINE</span>
+          </div>
+          <div class="visualizer-legend-mini">
+            <span>○ Start</span>
+            <span>▢ Task (Verb-Obj)</span>
+            <span>◇ XOR</span>
+            <span>❖ Parallel</span>
+            <span>◎ Timer</span>
+            <span>● End</span>
+          </div>
+        </div>
+
+        <div class="visualizer-scroll-wrapper">
+          <div id="bpmnSwimlaneVisualizer">
+            <!-- Rendered dynamically by bpmn-diagram.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Copyright Notice by Kayla Putri Maharani -->
+      <footer class="global-page-footer">
+        <div class="global-copyright-pill">
+          <span class="cp-text">© 2026 <strong>The Order Disaster!</strong> • All Rights Reserved by <strong>Kayla Putri Maharani</strong></span>
+        </div>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 1: BRIEFING KILAT
+       ====================================================================== -->
+  <div class="modal-overlay" id="briefingModal">
+    <div class="modal-content" style="max-width: 780px;">
+      <div class="modal-header">
+        <div class="modal-title">BRIEFING KILAT: STANDAR BPMN 2.0</div>
+        <button type="button" class="modal-close-btn" data-modal-close="briefingModal">✕</button>
+      </div>
+
+      <p style="font-size: 13px; font-weight: 700; color: #374151;">
+        Selamat datang di <b>The Order Disaster!</b> Perbaiki alur proses bisnis yang kacau sesuai aturan resmi <b>BPMN 2.0</b>:
+      </p>
+
+      <div class="briefing-symbols-grid">
+        <!-- Circle Start / End -->
+        <div class="briefing-symbol-card" style="background: #f0fdf4; border-color: #16a34a;">
+          <div class="briefing-card-header" style="color: #15803d;">
+            <span>CIRCLE</span>
+            <span>EVENT</span>
+          </div>
+          <div class="briefing-card-shape">
+            <div class="bpmn-shape-preview circle-start">START</div>
+            <div style="margin: 0 4px; font-weight: bold;">-</div>
+            <div class="bpmn-shape-preview circle-end">END</div>
+          </div>
+          <div class="briefing-card-desc">
+            <b>Start (○ Tipis)</b> = Pemicu proses dimulai.<br>
+            <b>End (● Tebal)</b> = Titik akhir saat proses selesai.
+          </div>
+        </div>
+
+        <!-- Box Activity Task (Verb-Object) -->
+        <div class="briefing-symbol-card" style="background: #eff6ff; border-color: #2563eb;">
+          <div class="briefing-card-header" style="color: #1d4ed8;">
+            <span>BOX</span>
+            <span>TASK (VERB-OBJ)</span>
+          </div>
+          <div class="briefing-card-shape">
+            <div class="bpmn-shape-preview box-task">TASK</div>
+          </div>
+          <div class="briefing-card-desc">
+            <b>Kotak Rounded</b> = Unit kerja aktif berformat <b>Kata Kerja + Objek</b> (contoh: <i>"Input Menu Pesanan"</i>, <i>"Panggang Daging Patty"</i>).
+          </div>
+        </div>
+
+        <!-- Diamond Exclusive Gateway (XOR) -->
+        <div class="briefing-symbol-card" style="background: #fefce8; border-color: #ca8a04;">
+          <div class="briefing-card-header" style="color: #a16207;">
+            <span>DIAMOND</span>
+            <span>XOR GATEWAY</span>
+          </div>
+          <div class="briefing-card-shape">
+            <div class="bpmn-shape-preview diamond-gateway"><span>✕</span></div>
+          </div>
+          <div class="briefing-card-desc">
+            <b>Belah Ketupat (✕)</b> = Percabangan keputusan eksklusif: hanya memilih 1 jalur alternatif (contoh: <i>"Metode Bayar Tunai?"</i>).
+          </div>
+        </div>
+
+        <!-- Diamond Parallel Gateway (AND) -->
+        <div class="briefing-symbol-card" style="background: #fefce8; border-color: #ca8a04;">
+          <div class="briefing-card-header" style="color: #a16207;">
+            <span>DIAMOND</span>
+            <span>PARALLEL (AND)</span>
+          </div>
+          <div class="briefing-card-shape">
+            <div class="bpmn-shape-preview diamond-parallel"><span>+</span></div>
+          </div>
+          <div class="briefing-card-desc">
+            <b>Belah Ketupat (+)</b> = Percabangan paralel: membuka atau menyatukan beberapa aktivitas <b>serentak</b> (contoh: Dapur memanggang pizza &amp; Kurir menyiapkan armada).
+          </div>
+        </div>
+
+        <!-- Double Circle Timer Event -->
+        <div class="briefing-symbol-card" style="background: #faf5ff; border-color: #7c3aed;">
+          <div class="briefing-card-header" style="color: #6d28d9;">
+            <span>DOUBLE CIRCLE</span>
+            <span>TIMER EVENT</span>
+          </div>
+          <div class="briefing-card-shape">
+            <div class="bpmn-shape-preview circle-timer">⏱</div>
+          </div>
+          <div class="briefing-card-desc">
+            <b>Lingkaran Ganda (⏱)</b> = Intermediate Timer Event untuk menahan proses hingga durasi waktu terpenuhi (contoh: <i>"Tunggu 15 Menit Oven"</i>).
+          </div>
+        </div>
+      </div>
+
+      <div style="background: #fffbeb; border: 2px dashed #f59e0b; padding: 12px; border-radius: 4px; font-size: 12px; color: #92400e; line-height: 1.5;">
+        <b>Aturan Penting BPMN 2.0 untuk Tim:</b><br>
+        1. <b>Penamaan Task (Verb-Object):</b> Aktivitas harus aktif, 2–4 kata, dan atomik (contoh benar: <i>"Racik Kopi Espresso"</i>, bukan <i>"Pengecekan"</i> atau hanya kata benda).<br>
+        2. <b>Satu Masuk, Satu Keluar:</b> Task tidak boleh bercabang langsung; percabangan wajib memakai Gateway (XOR / Parallel).<br>
+        3. <b>Penempatan Swimlane:</b> Setiap balok harus berada di Lane aktor yang berhak mengeksekusinya (Pelanggan, Kasir, Koki, Kurir).
+      </div>
+
+      <div style="text-align: center; margin-top: 8px;">
+        <button type="button" class="pixel-btn btn-run" style="font-size: 12px; padding: 14px 28px;" data-modal-close="briefingModal">
+          TUTUP BRIEFING
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 2: DISASTER BUG DETECTED
+       ====================================================================== -->
+  <div class="modal-overlay" id="bugModal">
+    <div class="modal-content" style="border-color: #ef4444;">
+      <div class="modal-header" style="border-color: #ef4444;">
+        <div class="modal-title" style="color: #dc2626;">PROCESS BUG DETECTED</div>
+        <button type="button" class="modal-close-btn" data-modal-close="bugModal">✕</button>
+      </div>
+      <div id="bugModalBody">
+        <!-- Injected by game.js -->
+      </div>
+      <div style="text-align: center; margin-top: 10px;">
+        <button type="button" class="pixel-btn" style="background: #3b82f6; color: #fff;" data-modal-close="bugModal">
+          PERBAIKI ALUR
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 3: COURSE CLEAR VICTORY MODAL (100% EFFICIENCY)
+       ====================================================================== -->
+  <div class="modal-overlay" id="victoryModal">
+    <div class="modal-content" style="border-color: #22c55e;">
+      <div class="modal-header" style="border-color: #22c55e;">
+        <div class="modal-title" style="color: #15803d;">WORLD CLEAR!</div>
+        <button type="button" class="modal-close-btn" data-modal-close="victoryModal">✕</button>
+      </div>
+      <div id="victoryModalBody">
+        <!-- Injected by game.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Global BPMN Symbol Selector Popover -->
+  <div class="global-symbol-picker" id="globalSymbolPicker">
+    <div class="picker-header">
+      <span class="picker-title">PILIH SIMBOL BPMN:</span>
+      <button type="button" class="picker-close-btn" id="closeSymbolPickerBtn">✕</button>
+    </div>
+    <div class="picker-options-grid" id="pickerOptionsGrid">
+      <!-- Injected dynamically by game.js -->
+    </div>
+  </div>
+
+  <!-- Global BPMN Swimlane Selector Popover -->
+  <div class="global-symbol-picker global-lane-picker" id="globalLanePicker">
+    <div class="picker-header">
+      <span class="picker-title">PINDAHKAN KE SWIMLANE:</span>
+      <button type="button" class="picker-close-btn" id="closeLanePickerBtn">✕</button>
+    </div>
+    <div class="picker-options-grid" id="laneOptionsGrid">
+      <!-- Injected dynamically by game.js -->
+    </div>
+  </div>
+
+  <!-- Audio Synthesizer, BPMN Scenarios, Swimlane Visualizer, and Game Controller Scripts -->
+  <script src="js/audio.js?v=7.7"></script>
+  <script src="js/bpmn-data.js"></script>
+  <script src="js/bpmn-diagram.js?v=7.7"></script>
+  <script src="js/game.js?v=7.7"></script>
+</body>
+</html>

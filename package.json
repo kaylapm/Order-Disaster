@@ -1,0 +1,22 @@
+{
+  "name": "the-order-disaster",
+  "version": "1.0.0",
+  "description": "The Order Disaster! - BPMN 2.0 Process Bug Fixer & Interactive Swimlane Simulator",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve -s .",
+    "dev": "npx serve -s ."
+  },
+  "keywords": [
+    "bpmn",
+    "bpmn2",
+    "game",
+    "retro",
+    "mario",
+    "educational",
+    "simulation",
+    "swimlane"
+  ],
+  "author": "Kayla Putri Maharani",
+  "license": "MIT"
+}
