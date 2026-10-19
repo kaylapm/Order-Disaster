@@ -2579,4 +2579,674 @@ body {
   }
 }
 
+/* ==========================================================================
+   MOBILE & TABLET RESPONSIVE OPTIMIZATIONS (HP & TOUCH DEVICES)
+   ========================================================================== */
+
+/* ==========================================================================
+   TABLET & IPAD RESPONSIVE OPTIMIZATIONS (769px to 1024px, Portrait & Landscape)
+   ========================================================================== */
+@media (min-width: 769px) and (max-width: 1024px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  /* 1. HUD on Tablet: Balanced inline with wrapped controls */
+  .mario-hud {
+    padding: 10px 14px;
+    gap: 12px;
+    font-size: 10px;
+  }
+
+  .hud-group {
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  #hudHomeBtn {
+    font-size: 9px;
+    padding: 6px 10px;
+  }
+
+  .hud-val {
+    font-size: 12px;
+  }
+
+  .hud-controls .pixel-btn-icon {
+    font-size: 8.5px;
+    padding: 6px 8px;
+  }
+
+  /* 2. Main Wrapper & Stories */
+  .main-wrapper {
+    padding: 14px 16px 70px;
+    gap: 14px;
+  }
+
+  .story-banner {
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .story-texts h1 {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .story-texts p {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .level-selector-nav {
+    overflow-x: auto;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .level-pill-btn {
+    font-size: 8.5px;
+    padding: 7px 11px;
+  }
+
+  /* 3. Action Toolbar on Tablet */
+  .game-action-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .game-action-toolbar .pixel-btn {
+    font-size: 8px !important;
+    padding: 9px 14px !important;
+  }
+
+  .game-action-toolbar .btn-run {
+    font-size: 9.5px !important;
+    padding: 10px 18px !important;
+  }
+
+  /* 4. BPMN Swimlane Diagram Visualizer on Tablet */
+  .bpmn-visualizer-container {
+    padding: 14px;
+  }
+
+  .bpmn-pool-wrapper {
+    min-width: 820px;
+  }
+
+  .bpmn-lane-header {
+    width: 140px;
+    min-width: 140px;
+  }
+
+  .bpmn-swimlane-row {
+    min-height: 140px;
+  }
+
+  .bpmn-lane-cell {
+    min-width: 100px;
+    padding: 20px 8px 12px;
+  }
+
+  .node-shape.box-task {
+    width: 100px;
+    min-height: 44px;
+  }
+
+  .node-label-caption {
+    font-size: 9px;
+    max-width: 110px;
+  }
+
+  /* 5. Welcome Screen on Tablet */
+  .welcome-screen-wrapper {
+    max-width: 760px;
+    padding: 16px;
+  }
+
+  .welcome-box {
+    padding: 28px 24px;
+    gap: 18px;
+  }
+
+  .welcome-main-title {
+    font-size: 26px;
+    line-height: 1.4;
+    letter-spacing: 1.5px;
+  }
+
+  .welcome-sub-title {
+    font-size: 10px;
+  }
+
+  .welcome-mario-scene {
+    padding: 14px 18px;
+  }
+
+  .welcome-features-list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  /* 6. Case Selection on Tablet */
+  .case-select-wrapper {
+    padding: 0 16px;
+    margin: 18px auto 50px;
+    gap: 24px;
+  }
+
+  .cases-tier-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .case-title {
+    font-size: 13px;
+  }
+}
+
+/* ==========================================================================
+   MOBILE & SMARTPHONE OPTIMIZATIONS (<= 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  /* 1. TOP HUD: Sticky, neatly stacked & compact on mobile */
+  .mario-hud {
+    padding: 8px 10px;
+    gap: 8px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hud-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) repeat(2, 1fr);
+    align-items: center;
+    gap: 6px 10px;
+    width: 100%;
+  }
+
+  #hudHomeBtn {
+    grid-column: span 3;
+    font-size: 8px;
+    padding: 5px 8px;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .hud-item {
+    gap: 2px;
+  }
+
+  .hud-label {
+    font-size: 7px;
+  }
+
+  .hud-val {
+    font-size: 10px;
+  }
+
+  .hud-controls {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap: 6px;
+    padding-top: 4px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.25);
+  }
+
+  .hud-controls .pixel-btn-icon {
+    flex: 1;
+    font-size: 7.5px;
+    padding: 6px 4px;
+    text-align: center;
+    justify-content: center;
+    box-shadow: 1px 1px 0 #000;
+  }
+
+  /* 2. MAIN CONTAINER & STORY BANNER */
+  .main-wrapper {
+    padding: 10px 10px 60px;
+    gap: 12px;
+  }
+
+  .story-banner {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .story-header {
+    min-width: 100%;
+  }
+
+  .story-texts h1 {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .story-texts p {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .level-selector-nav {
+    width: 100%;
+    display: flex;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    gap: 6px;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .level-pill-btn {
+    font-size: 8px;
+    padding: 6px 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* 3. STUDY CASE CARD */
+  .study-case-card {
+    padding: 12px 14px;
+    gap: 8px;
+  }
+
+  .case-narrative-header {
+    gap: 8px;
+  }
+
+  .narrative-badge {
+    font-size: 7.5px;
+    padding: 4px 8px;
+  }
+
+  .narrative-title {
+    font-size: 8.5px;
+  }
+
+  .case-narrative-content {
+    font-size: 11px;
+    line-height: 1.5;
+    padding: 10px 12px;
+  }
+
+  /* 4. GAME ACTION TOOLBAR (MOBILE FRIENDLY GRID) */
+  .game-action-toolbar {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .game-action-toolbar .pixel-btn {
+    width: 100%;
+    justify-content: center;
+    font-size: 7.5px !important;
+    padding: 9px 8px !important;
+    min-height: 38px;
+  }
+
+  .game-action-toolbar .btn-run {
+    grid-column: span 2;
+    font-size: 9px !important;
+    padding: 11px 12px !important;
+    order: -1;
+  }
+
+  .game-action-toolbar .btn-add-time {
+    margin-left: 0;
+  }
+
+  /* 5. BPMN VISUALIZER (SWIMLANE DIAGRAM SCROLL ON MOBILE) */
+  .bpmn-visualizer-container {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .visualizer-header-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+
+  .visualizer-title {
+    font-size: 9px;
+    line-height: 1.35;
+    flex-wrap: wrap;
+  }
+
+  .visualizer-legend-mini {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    font-size: 9px;
+  }
+
+  .visualizer-scroll-wrapper {
+    -webkit-overflow-scrolling: touch;
+    border-width: 2px;
+  }
+
+  .bpmn-pool-wrapper {
+    min-width: 720px;
+  }
+
+  .bpmn-pool-header {
+    width: 38px;
+    min-width: 38px;
+    padding: 8px 2px;
+  }
+
+  .pool-vertical-title {
+    font-size: 8.5px;
+    letter-spacing: 1px;
+  }
+
+  .bpmn-lane-header {
+    width: 120px;
+    min-width: 120px;
+    padding: 8px 6px;
+    border-left-width: 6px;
+  }
+
+  .lane-name {
+    font-size: 10px;
+  }
+
+  .lane-role {
+    font-size: 8.5px;
+  }
+
+  .bpmn-swimlane-row {
+    min-height: 130px;
+  }
+
+  .bpmn-lane-cell {
+    min-width: 95px;
+    padding: 18px 6px 10px;
+  }
+
+  /* Node elements on mobile */
+  .node-shape.box-task {
+    width: 90px;
+    min-height: 42px;
+    padding: 3px 4px;
+  }
+
+  .task-text {
+    font-size: 8px;
+  }
+
+  .node-label-caption {
+    font-size: 8.5px;
+    max-width: 95px;
+  }
+
+  .node-quick-sym-btn {
+    font-size: 6px;
+    padding: 4px 5px;
+  }
+
+  .node-quick-lane-btn {
+    font-size: 5.5px;
+    padding: 4px 5px;
+  }
+
+  /* 6. SCREEN 1: WELCOME / TITLE SCREEN ON MOBILE */
+  #welcomeScreen.screen-view.active {
+    padding: 16px 10px;
+    min-height: 100vh;
+    justify-content: flex-start;
+  }
+
+  .welcome-box {
+    padding: 20px 14px;
+    gap: 16px;
+    box-shadow: 
+      0 0 0 3px #fbbf24,
+      0 0 0 6px #000,
+      8px 8px 0 rgba(0, 0, 0, 0.4);
+  }
+
+  .welcome-top-badge {
+    font-size: 8px;
+    padding: 6px 10px;
+  }
+
+  .welcome-top-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .welcome-audio-controls {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .welcome-audio-controls .pixel-btn-icon {
+    flex: 1;
+    font-size: 8px;
+    padding: 6px;
+  }
+
+  .welcome-main-title {
+    font-size: 20px;
+    letter-spacing: 1px;
+    line-height: 1.35;
+    margin: 0 0 12px 0;
+    text-shadow: 
+      2px 2px 0 var(--mario-coin-gold), 
+      4px 4px 0 #b45309, 
+      6px 6px 0 #000;
+  }
+
+  .welcome-sub-title {
+    font-size: 8px;
+    letter-spacing: 0.8px;
+    line-height: 1.5;
+  }
+
+  .welcome-mario-scene {
+    padding: 10px 12px;
+    gap: 12px;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .pixel-mario-large {
+    width: 36px;
+    height: 44px;
+    min-width: 36px;
+  }
+
+  .speech-headline {
+    font-size: 8px;
+    line-height: 1.45;
+  }
+
+  .speech-desc {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .welcome-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .btn-welcome-start,
+  .btn-welcome-briefing {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    font-size: 11px;
+    padding: 14px 18px;
+    box-sizing: border-box;
+  }
+
+  .welcome-features-list {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .welcome-feat-item {
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+
+  /* 7. SCREEN 2: CASE SELECTION (WORLD SELECT) ON MOBILE */
+  .case-select-wrapper {
+    margin: 12px auto 40px;
+    padding: 0 10px;
+    gap: 20px;
+  }
+
+  .case-select-header {
+    padding: 12px 14px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  #caseSelectBackBtn {
+    font-size: 8px;
+    padding: 8px;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .case-header-title h2 {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .case-header-title p {
+    font-size: 10px;
+  }
+
+  .case-header-actions {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .case-header-actions .pixel-btn-icon,
+  .case-header-actions .pixel-btn {
+    flex: 1;
+    font-size: 7.5px;
+    padding: 6px 4px;
+    justify-content: center;
+  }
+
+  .cases-tier-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .case-selection-card {
+    padding: 14px;
+  }
+
+  .case-title {
+    font-size: 12px;
+  }
+
+  .btn-play-case {
+    font-size: 9px;
+    padding: 10px 14px;
+    justify-content: center;
+  }
+
+  /* 8. MODALS & POPOVERS (SMARTPHONE CENTERING & TOUCH SCROLL) */
+  .modal-overlay {
+    padding: 10px;
+  }
+
+  .modal-content {
+    padding: 16px 14px;
+    max-height: 88vh;
+    border-width: 4px;
+    box-shadow: 6px 6px 0 #000;
+    gap: 14px;
+  }
+
+  .modal-title {
+    font-size: 10px;
+  }
+
+  .briefing-symbols-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .briefing-symbol-card {
+    padding: 10px;
+  }
+
+  .global-symbol-picker {
+    width: calc(100vw - 24px) !important;
+    max-width: 320px;
+  }
+
+  /* 9. GLOBAL FOOTER COPYRIGHT PILL ON MOBILE */
+  .global-copyright-pill,
+  .welcome-copyright-pill {
+    padding: 8px 14px;
+    font-size: 7px;
+    line-height: 1.5;
+    border-radius: 20px;
+  }
+}
+
+/* Extra Small Phones (<= 420px) */
+@media (max-width: 420px) {
+  .welcome-main-title {
+    font-size: 17px;
+  }
+
+  .welcome-top-badge {
+    font-size: 7px;
+    padding: 5px 8px;
+  }
+
+  .btn-welcome-start {
+    font-size: 9.5px;
+    padding: 12px 14px;
+  }
+
+  .btn-welcome-briefing {
+    font-size: 9px;
+    padding: 12px 14px;
+  }
+
+  .story-texts h1 {
+    font-size: 10px;
+  }
+
+  .hud-val {
+    font-size: 9px;
+  }
+
+  .hud-label {
+    font-size: 6.5px;
+  }
+
+  .game-action-toolbar .pixel-btn {
+    font-size: 7px !important;
+    padding: 8px 4px !important;
+  }
+}
+
+
 
