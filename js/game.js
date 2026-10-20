@@ -53,11 +53,35 @@ class OrderDisasterGame {
     this.setupControlButtons();
     this.setupModals();
 
-    // Load first level in background
-    this.loadLevel(0);
+    // Prepare first level in background without starting timer
+    this.prepareLevel(0);
 
     // Initial Screen is Welcome Screen
     this.showScreen('welcomeScreen');
+
+    // Auto-start BGM on first user interaction (browser autoplay policy requirement)
+    this.setupAutoPlayMusic();
+  }
+
+  // Setup autoplay music on first user interaction
+  setupAutoPlayMusic() {
+    const startMusicOnInteract = () => {
+      if (window.retroAudio && !window.retroAudio.bgmPlaying) {
+        window.retroAudio.startBGM();
+      }
+      ['click', 'keydown', 'touchstart', 'pointerdown'].forEach((evt) => {
+        document.removeEventListener(evt, startMusicOnInteract);
+      });
+    };
+
+    ['click', 'keydown', 'touchstart', 'pointerdown'].forEach((evt) => {
+      document.addEventListener(evt, startMusicOnInteract, { once: true });
+    });
+
+    // Also attempt immediate start if browser allows it
+    if (window.retroAudio) {
+      window.retroAudio.startBGM();
+    }
   }
 
   // Screen Management (Welcome -> Case Select -> Gameplay POV)
@@ -70,6 +94,14 @@ class OrderDisasterGame {
     }
     window.retroAudio.playPipe();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // If leaving gamePlayScreen, stop running timer so it doesn't run in the background
+    if (screenId !== 'gamePlayScreen') {
+      this.stopTimer();
+    } else {
+      // Start or resume timer when actively entering gameplay
+      this.startTimer();
+    }
 
     // Sync audio buttons across screens
     this.updateAudioButtonsUI();
@@ -196,8 +228,8 @@ class OrderDisasterGame {
     });
   }
 
-  // Load a disaster level
-  loadLevel(levelIndex) {
+  // Prepare level data and board without starting countdown (used before player enters gameplay)
+  prepareLevel(levelIndex) {
     if (levelIndex < 0 || levelIndex >= DISASTER_LEVELS.length) return;
     this.currentLevelIndex = levelIndex;
     this.currentLevel = DISASTER_LEVELS[levelIndex];
@@ -216,15 +248,23 @@ class OrderDisasterGame {
     }
     this.worldValEl.innerText = this.currentLevel.world.replace('WORLD ', '');
 
-    // Reset Level Timer
+    // Reset Level Timer value without starting interval
+    this.stopTimer();
     this.timeLeft = this.currentLevel.timeLimit;
     this.updateHUD();
-    this.startTimer();
 
     // Update Level pill navigation active state for all 5 cases
     this.renderLevelPills();
-
     this.renderBoard();
+  }
+
+  // Load a disaster level (when chosen/played)
+  loadLevel(levelIndex) {
+    this.prepareLevel(levelIndex);
+    // Start countdown if we are currently in gameplay screen
+    if (this.currentScreen === 'gamePlayScreen') {
+      this.startTimer();
+    }
   }
 
   // Render the BPMN step slots & cards
@@ -855,9 +895,16 @@ class OrderDisasterGame {
   }
 
   // Timer Management
-  startTimer() {
-    if (this.timerInterval) clearInterval(this.timerInterval);
+  stopTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
     this.isTimerPaused = false;
+  }
+
+  startTimer() {
+    this.stopTimer();
 
     this.timerInterval = setInterval(() => {
       if (this.isTimerPaused) return;
