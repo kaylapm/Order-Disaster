@@ -18,7 +18,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 
   <!-- Retro Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=8.0">
+  <link rel="stylesheet" href="css/style.css?v=8.3">
 </head>
 <body>
 
@@ -34,14 +34,31 @@
   <section class="screen-view active" id="welcomeScreen">
     <div class="welcome-screen-wrapper">
       <div class="welcome-box">
-        <!-- Arcade Marquee Header & Audio Toggles -->
+        <!-- Arcade Marquee Header, Layout Switcher & Audio Toggles -->
         <div class="welcome-top-bar">
           <div class="welcome-top-badge">
             <span>SUPER BPMN BROS ARCADE LAB</span>
           </div>
-          <div class="welcome-audio-controls">
-            <button type="button" class="pixel-btn-icon active audio-sfx-btn" id="welcomeToggleSoundBtn" title="Soundboard / Efek Suara (SFX)">SFX: ON</button>
-            <button type="button" class="pixel-btn-icon active audio-bgm-btn" id="welcomeToggleBgmBtn" title="Musik Retro 8-Bit (BGM)">BGM: ON</button>
+
+          <div class="welcome-top-controls">
+            <!-- Layout Switcher: HP / Tablet / Laptop -->
+            <div class="layout-toggle-group" id="welcomeLayoutToggleGroup" title="Pilih Mode Tampilan Layar">
+              <span class="layout-toggle-label">MODE:</span>
+              <button type="button" class="layout-toggle-btn" data-layout-mode="mobile" title="Mode HP (Kompak & Ringkas)">
+                📱 HP
+              </button>
+              <button type="button" class="layout-toggle-btn" data-layout-mode="tablet" title="Mode Tablet (Sedang)">
+                📟 TABLET
+              </button>
+              <button type="button" class="layout-toggle-btn active" data-layout-mode="desktop" title="Mode Laptop / Smartboard (Layar Lebar)">
+                💻 LAPTOP
+              </button>
+            </div>
+
+            <div class="welcome-audio-controls">
+              <button type="button" class="pixel-btn-icon active audio-sfx-btn" id="welcomeToggleSoundBtn" title="Soundboard / Efek Suara (SFX)">SFX: ON</button>
+              <button type="button" class="pixel-btn-icon active audio-bgm-btn" id="welcomeToggleBgmBtn" title="Musik Retro 8-Bit (BGM)">BGM: ON</button>
+            </div>
           </div>
         </div>
 
@@ -110,7 +127,21 @@
           <h2>WORLD SELECT: PILIH KASUS PROSES BISNIS</h2>
           <p>Pilih kasus yang ingin diperbaiki oleh tim kamu di Smartboard (Total 5 Kasus)</p>
         </div>
-        <div class="case-header-actions" style="display: flex; gap: 8px; align-items: center;">
+        <div class="case-header-actions" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <!-- Layout Switcher: HP / Tablet / Laptop -->
+          <div class="layout-toggle-group" id="caseLayoutToggleGroup" title="Pilih Mode Tampilan Layar">
+            <span class="layout-toggle-label">MODE:</span>
+            <button type="button" class="layout-toggle-btn" data-layout-mode="mobile" title="Mode HP (Kompak & Ringkas)">
+              📱 HP
+            </button>
+            <button type="button" class="layout-toggle-btn" data-layout-mode="tablet" title="Mode Tablet (Sedang)">
+              📟 TABLET
+            </button>
+            <button type="button" class="layout-toggle-btn active" data-layout-mode="desktop" title="Mode Laptop / Smartboard (Layar Lebar)">
+              💻 LAPTOP
+            </button>
+          </div>
+
           <button type="button" class="pixel-btn-icon active audio-sfx-btn" id="caseToggleSoundBtn" title="Sound Effects">SFX: ON</button>
           <button type="button" class="pixel-btn-icon active audio-bgm-btn" id="caseToggleBgmBtn" title="Background Music">BGM: ON</button>
           <button type="button" class="pixel-btn" id="caseSelectBriefingBtn" style="background: #3b82f6; color: #fff;">
@@ -143,29 +174,31 @@
           PILIH KASUS
         </button>
 
-        <div class="hud-item">
-          <span class="hud-label">MARIO</span>
-          <span class="hud-val" id="scoreVal">000000</span>
-        </div>
+        <div class="hud-stats-row">
+          <div class="hud-item">
+            <span class="hud-label">MARIO</span>
+            <span class="hud-val" id="scoreVal">000000</span>
+          </div>
 
-        <div class="hud-item">
-          <span class="hud-label">COINS</span>
-          <span class="hud-val"><span id="coinsVal">x00</span></span>
-        </div>
+          <div class="hud-item">
+            <span class="hud-label">COINS</span>
+            <span class="hud-val"><span id="coinsVal">x00</span></span>
+          </div>
 
-        <div class="hud-item">
-          <span class="hud-label">WORLD</span>
-          <span class="hud-val" id="worldVal">1-1</span>
-        </div>
+          <div class="hud-item">
+            <span class="hud-label">WORLD</span>
+            <span class="hud-val" id="worldVal">1-1</span>
+          </div>
 
-        <div class="hud-item">
-          <span class="hud-label">TIME</span>
-          <span class="hud-val" id="timeVal">05:00</span>
-        </div>
+          <div class="hud-item">
+            <span class="hud-label">TIME</span>
+            <span class="hud-val" id="timeVal">05:00</span>
+          </div>
 
-        <div class="hud-item">
-          <span class="hud-label">LIVES</span>
-          <span class="hud-val"><span id="livesVal">x3</span></span>
+          <div class="hud-item">
+            <span class="hud-label">LIVES</span>
+            <span class="hud-val"><span id="livesVal">x3</span></span>
+          </div>
         </div>
       </div>
 
@@ -235,13 +268,15 @@
             <span>BPMN 2.0 POOL &amp; SWIMLANE LIVE VISUALIZER</span>
             <span style="font-size: 8px; color: #16a34a; background: #dcfce7; padding: 3px 6px; border: 1px solid #16a34a; border-radius: 2px;">LIVE BPMN ENGINE</span>
           </div>
-          <div class="visualizer-legend-mini">
-            <span>○ Start</span>
-            <span>▢ Task (Verb-Obj)</span>
-            <span>◇ XOR</span>
-            <span>❖ Parallel</span>
-            <span>◎ Timer</span>
-            <span>● End</span>
+          <div class="visualizer-header-controls">
+            <div class="visualizer-legend-mini">
+              <span>○ Start</span>
+              <span>▢ Task</span>
+              <span>◇ XOR</span>
+              <span>❖ Parallel</span>
+              <span>◎ Timer</span>
+              <span>● End</span>
+            </div>
           </div>
         </div>
 
@@ -424,9 +459,9 @@
   </div>
 
   <!-- Audio Synthesizer, BPMN Scenarios, Swimlane Visualizer, and Game Controller Scripts -->
-  <script src="js/audio.js?v=7.7"></script>
-  <script src="js/bpmn-data.js"></script>
-  <script src="js/bpmn-diagram.js?v=7.7"></script>
-  <script src="js/game.js?v=7.7"></script>
+  <script src="js/audio.js?v=8.7"></script>
+  <script src="js/bpmn-data.js?v=8.7"></script>
+  <script src="js/bpmn-diagram.js?v=8.7"></script>
+  <script src="js/game.js?v=8.7"></script>
 </body>
 </html>

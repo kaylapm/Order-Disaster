@@ -149,9 +149,9 @@ class OrderDisasterGame {
     container.innerHTML = '';
 
     const tiers = [
-      { tier: 1, label: 'LEVEL 1: TINGKAT PEMULA (2 KASUS)', badgeClass: 'tier-1-badge' },
-      { tier: 2, label: 'LEVEL 2: TINGKAT MENENGAH (2 KASUS)', badgeClass: 'tier-2-badge' },
-      { tier: 3, label: 'LEVEL 3: BOSS STAGE / ADVANCED (1 KASUS)', badgeClass: 'tier-3-badge' }
+      { tier: 1, label: 'LEVEL 1: TINGKAT PEMULA', badgeClass: 'tier-1-badge' },
+      { tier: 2, label: 'LEVEL 2: TINGKAT MENENGAH', badgeClass: 'tier-2-badge' },
+      { tier: 3, label: 'LEVEL 3: BOSS STAGE / ADVANCED', badgeClass: 'tier-3-badge' }
     ];
 
     tiers.forEach((t) => {
@@ -164,8 +164,7 @@ class OrderDisasterGame {
       const headerEl = document.createElement('div');
       headerEl.className = 'tier-group-header';
       headerEl.innerHTML = `
-        <span class="tier-label-badge ${t.badgeClass}">${t.label}</span>
-        <span style="font-family: 'Press Start 2P'; font-size: 10px; color: #475569;">${casesInTier.length} KASUS</span>
+        <span class="tier-label-badge ${t.badgeClass}">${t.label} (${casesInTier.length} KASUS)</span>
       `;
       groupEl.appendChild(headerEl);
 
@@ -771,42 +770,21 @@ class OrderDisasterGame {
     );
   }
 
-  // Show Disaster Bug Modal with specific classroom explanation
+  // Show Disaster Bug Modal without giving away the solutions (just tell them to try again)
   showDisasterBugModal(failedIndex, stepEval) {
-    let errorTitle = `BUG PADA LANGKAH ${failedIndex + 1}!`;
-    let errorDesc = '';
-
-    if (!stepEval.isOrderCorrect && !stepEval.isSymbolCorrect) {
-      errorDesc = `<b>Urutan & Simbol Salah!</b><br>
-        Aktivitas <i>"${stepEval.card.text}"</i> bukan langkah ke-${failedIndex + 1}, dan simbolnya harusnya <b>${stepEval.expectedSymbol.toUpperCase()}</b> bukan ${stepEval.card.currentSymbol.toUpperCase()}.`;
-    } else if (!stepEval.isLaneCorrect) {
-      const currLane = this.currentLevel.lanes.find(l => l.id === stepEval.card.laneId);
-      const targetLane = this.currentLevel.lanes.find(l => l.id === stepEval.expectedLane);
-      errorDesc = `<b>Aktivitas Dikerjakan di Swimlane / Role yang Salah!</b><br>
-        Aktivitas <i>"${stepEval.card.text}"</i> saat ini berada di <b>${currLane ? currLane.name : stepEval.card.laneId}</b>.<br>
-        Harusnya aktivitas ini dikerjakan oleh <b>${targetLane ? targetLane.name : stepEval.expectedLane}</b>!<br>
-        <span style="color:#0284c7;">💡 Klik tombol SWIMLANE pada kartu atau Drag balok ke jalur yang benar.</span>`;
-    } else if (!stepEval.isOrderCorrect) {
-      errorDesc = `<b>Urutan Langkah Keliru!</b><br>
-        Aktivitas <i>"${stepEval.card.text}"</i> ditaruh di Step ${failedIndex + 1}.<br>
-        <span style="color:#ef4444;">${stepEval.card.bugNote}</span>`;
-    } else if (!stepEval.isSymbolCorrect) {
-      const correctSym = BPMN_SYMBOLS[stepEval.expectedSymbol.toUpperCase()];
-      errorDesc = `<b>Simbol BPMN Kurang Tepat!</b><br>
-        Aktivitas <i>"${stepEval.card.text}"</i> sudah di urutan yang tepat, tetapi simbol BPMN yang kamu pasang adalah <b>${stepEval.card.currentSymbol.toUpperCase()}</b>.<br>
-        Harusnya memakai simbol <b>${correctSym.icon} ${correctSym.name} (${correctSym.shape})</b>!`;
-    }
+    const errorTitle = `MASIH ADA YANG SALAH!`;
 
     const modalBody = document.getElementById('bugModalBody');
     modalBody.innerHTML = `
-      <div style="font-family: 'Press Start 2P', monospace; font-size: 13px; color: #dc2626; margin-bottom: 10px;">
+      <div style="font-family: 'Press Start 2P', monospace; font-size: 13px; color: #dc2626; margin-bottom: 12px; line-height: 1.4;">
         💥 ${errorTitle}
       </div>
-      <div style="font-size: 13px; line-height: 1.5; color: #1f2937; margin-bottom: 14px;">
-        ${errorDesc}
+      <div style="font-size: 13.5px; line-height: 1.6; color: #1f2937; margin-bottom: 16px;">
+        Alur proses bisnis kamu <b>belum tepat</b>.<br>
+        Periksa kembali urutan langkah, simbol BPMN, atau penempatan swimlane-nya.
       </div>
-      <div style="background: #fef2f2; border: 2px dashed #f87171; padding: 10px; border-radius: 4px; font-size: 12px; color: #991b1b;">
-        💡 <b>Solusi:</b> Bekerjasamalah dengan tim di depan smartboard untuk memindah balok atau klik simbol untuk menggantinya, lalu tekan <b>RUN & VERIFY</b> kembali!
+      <div style="background: #fef2f2; border: 2px dashed #f87171; padding: 12px; border-radius: 6px; font-size: 12.5px; color: #991b1b; line-height: 1.5;">
+        🔁 <b>Coba lagi (Try Again):</b> Diskusikan bersama tim, teliti kembali cerita kasusnya, dan perbaiki susunan alurmu!
       </div>
     `;
 
@@ -1043,6 +1021,9 @@ class OrderDisasterGame {
       };
     }
 
+    // Responsive Layout Mode Switcher (HP, Tablet, Laptop)
+    this.setupLayoutModeSwitcher();
+
     // Screen Navigation Buttons
     const welcomeStartBtn = document.getElementById('welcomeStartBtn');
     if (welcomeStartBtn) {
@@ -1151,9 +1132,117 @@ class OrderDisasterGame {
     if (modal) modal.classList.add('active');
   }
 
-  closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) modal.classList.remove('active');
+  // Layout Switcher: HP (Mobile), Tablet, and Laptop (Desktop)
+  setupLayoutModeSwitcher() {
+    const layoutButtons = document.querySelectorAll('.layout-toggle-btn');
+    if (!layoutButtons.length) return;
+
+    // Detect initial screen size to set default mode
+    let defaultMode = 'desktop';
+    if (window.innerWidth <= 640) {
+      defaultMode = 'mobile';
+    } else if (window.innerWidth <= 1024) {
+      defaultMode = 'tablet';
+    }
+
+    // Check localStorage if previously set by user
+    const savedMode = localStorage.getItem('orderDisasterLayoutMode') || defaultMode;
+    this.setLayoutMode(savedMode, false);
+
+    layoutButtons.forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const mode = btn.dataset.layoutMode;
+        if (mode) {
+          window.retroAudio.playClick();
+          this.setLayoutMode(mode, true);
+        }
+      });
+    });
+
+    // Lane Fit / Width Toggle (Wide Scroll vs Fit Screen)
+    const laneFitBtns = document.querySelectorAll('[data-lane-fit]');
+    const savedLaneFit = localStorage.getItem('orderDisasterLaneFit') || 'wide';
+    this.setLaneFitMode(savedLaneFit, false);
+
+    laneFitBtns.forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const fitMode = btn.dataset.laneFit;
+        if (fitMode) {
+          window.retroAudio.playClick();
+          this.setLaneFitMode(fitMode, true);
+        }
+      });
+    });
+  }
+
+  setLaneFitMode(fitMode, showNotification = true) {
+    if (fitMode !== 'fit' && fitMode !== 'wide') fitMode = 'wide';
+
+    try {
+      localStorage.setItem('orderDisasterLaneFit', fitMode);
+    } catch (e) {}
+
+    const body = document.body;
+    body.classList.remove('lane-fit-fit', 'lane-fit-wide');
+    body.classList.add(`lane-fit-${fitMode}`);
+
+    document.querySelectorAll('[data-lane-fit]').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.laneFit === fitMode);
+    });
+
+    if (showNotification) {
+      const label = fitMode === 'fit' ? '🔍 Mode Muat 1 Layar Penuh' : '↔ Mode Lebar Lega (Scroll Bebas)';
+      this.showToast(`Ukuran Jalur: ${label}`);
+    }
+
+    if (this.swimlaneVisualizer) {
+      setTimeout(() => {
+        this.swimlaneVisualizer.calculatePositions();
+        this.swimlaneVisualizer.drawArrows();
+        this.swimlaneVisualizer.positionMarioAtStart();
+      }, 50);
+    }
+  }
+
+  setLayoutMode(mode, showNotification = true) {
+    const validModes = ['mobile', 'tablet', 'desktop'];
+    if (!validModes.includes(mode)) mode = 'desktop';
+
+    // Store preference
+    try {
+      localStorage.setItem('orderDisasterLayoutMode', mode);
+    } catch (e) {}
+
+    // Update body classes
+    const body = document.body;
+    validModes.forEach((m) => body.classList.remove(`layout-mode-${m}`));
+    body.classList.add(`layout-mode-${mode}`);
+
+    // Update active button state
+    document.querySelectorAll('.layout-toggle-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.layoutMode === mode);
+    });
+
+    // Notify user with live toast if triggered manually
+    if (showNotification) {
+      const modeNames = {
+        mobile: '📱 HP (Kompak & Ergonomis)',
+        tablet: '📟 Tablet (Proporsional)',
+        desktop: '💻 Laptop / Smartboard (Layar Lebar)'
+      };
+      this.showToast(`Layout diubah ke mode: ${modeNames[mode] || mode}`);
+    }
+
+    // Recalculate BPMN diagram sequence flow arrows and Mario positioning
+    if (this.swimlaneVisualizer) {
+      setTimeout(() => {
+        this.swimlaneVisualizer.calculatePositions();
+        this.swimlaneVisualizer.drawArrows();
+        this.swimlaneVisualizer.positionMarioAtStart();
+      }, 50);
+    }
   }
 }
 

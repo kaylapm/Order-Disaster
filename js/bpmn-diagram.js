@@ -318,26 +318,27 @@ class BPMNSwimlaneVisualizer {
 
   // Generate SVG path data for orthogonal BPMN Sequence Flow connecting two shapes
   createOrthogonalPath(curr, next) {
+    const isSameLane = (curr.laneId === next.laneId);
+    
+    // When both nodes are in the same swimlane, use the exact average Y so the line is 100% straight and horizontal
+    const startY = isSameLane ? Math.round((curr.y + next.y) / 2) : curr.y;
+    const endY = isSameLane ? startY : next.y;
     const startX = curr.startX;
-    const startY = curr.y;
     const endX = next.endX;
-    const endY = next.y;
 
     if (startX >= endX) {
-      // Loopback or reverse direction
+      // Loopback or reverse direction with smooth corners
       const midY = (startY + endY) / 2;
       return `M ${startX} ${startY} L ${startX + 12} ${startY} L ${startX + 12} ${midY} L ${endX - 12} ${midY} L ${endX - 12} ${endY} L ${endX} ${endY}`;
     }
 
-    const isSameLane = (curr.laneId === next.laneId);
-
-    if (isSameLane && Math.abs(startY - endY) < 6) {
-      // Direct horizontal line within the same swimlane
+    if (isSameLane) {
+      // Direct, 100% smooth & straight horizontal line within the same swimlane
       return `M ${startX} ${startY} L ${endX} ${endY}`;
     } else {
-      // Orthogonal corner connector with smooth rounded turns
+      // Orthogonal corner connector with smooth rounded turns between swimlanes
       const midX = Math.round(startX + (endX - startX) * 0.5);
-      const radius = Math.min(10, Math.abs(endY - startY) * 0.4, Math.abs(midX - startX) * 0.4);
+      const radius = Math.min(12, Math.abs(endY - startY) * 0.45, Math.abs(midX - startX) * 0.45);
 
       if (startY < endY) {
         // Flow going downward to a lower swimlane

@@ -130,6 +130,13 @@ body {
   flex-wrap: wrap;
 }
 
+.hud-stats-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
 .hud-item {
   display: flex;
   flex-direction: column;
@@ -1208,6 +1215,59 @@ body {
   gap: 8px;
 }
 
+.visualizer-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Layout Switcher: HP, Tablet, Laptop */
+.layout-toggle-group {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  border: 2px solid #000;
+  border-radius: 4px;
+  padding: 3px;
+  gap: 3px;
+  box-shadow: 2px 2px 0 #000;
+}
+
+.layout-toggle-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: #475569;
+  padding: 0 5px;
+}
+
+.layout-toggle-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: #334155;
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 5px 8px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.layout-toggle-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.layout-toggle-btn.active {
+  background: #facc15;
+  color: #000;
+  border: 1px solid #000;
+  font-weight: bold;
+  box-shadow: 1px 1px 0 #000;
+}
+
 .visualizer-legend-mini {
   display: flex;
   align-items: center;
@@ -1227,6 +1287,7 @@ body {
   position: relative;
   padding: 0;
   margin: 0;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Pool Box Structure (BPMN 2.0 Standard) */
@@ -1512,6 +1573,14 @@ body {
   transform: scale(0.95);
 }
 
+/* BPMN Node Shape container and alignment */
+.node-shape {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 auto !important;
+}
+
 /* Start Event Node */
 .node-shape.circle-start {
   width: 44px;
@@ -1534,7 +1603,8 @@ body {
 /* Activity / Task Node */
 .node-shape.box-task {
   width: 110px;
-  min-height: 46px;
+  min-height: 44px;
+  height: 44px;
   border: 3px solid #2563eb;
   border-radius: 6px;
   background: #eff6ff;
@@ -1770,6 +1840,290 @@ body {
   opacity: 1;
   transform: translateY(4px);
 }
+
+/* ==========================================================================
+   LAYOUT MODES (MOBILE / HP, TABLET, LAPTOP)
+   Applied dynamically via data-layout-mode or automatically via media queries
+   ========================================================================== */
+
+/* 1. MOBILE (HP) COMPACT MODE */
+/* Default WIDE (Lega) for Mobile: minimum 620px to 800px so cards have plenty of breathing room to scroll */
+.layout-mode-mobile .bpmn-pool-wrapper {
+  min-width: 680px !important;
+}
+
+/* FIT LAYAR MODE: Pool automatically fits into the container width (100%) without overflow */
+body.lane-fit-fit .bpmn-pool-wrapper {
+  min-width: 100% !important;
+  width: 100% !important;
+}
+
+body.lane-fit-fit .bpmn-lane-cell {
+  min-width: 0 !important;
+  padding: 12px 2px 6px !important;
+}
+
+body.lane-fit-fit .bpmn-lane-header {
+  width: 80px !important;
+  min-width: 80px !important;
+  padding: 4px 4px !important;
+}
+
+body.lane-fit-fit .node-shape.box-task {
+  width: 54px !important;
+  min-height: 32px !important;
+  padding: 2px 2px !important;
+}
+
+body.lane-fit-fit .task-text {
+  font-size: 6.5px !important;
+}
+
+body.lane-fit-fit .node-label-caption {
+  font-size: 6.5px !important;
+  max-width: 56px !important;
+}
+
+body.lane-fit-fit .node-quick-sym-btn,
+body.lane-fit-fit .node-quick-lane-btn {
+  font-size: 4.5px !important;
+  padding: 1px 2px !important;
+}
+
+.layout-mode-mobile .bpmn-pool-header {
+  width: 32px !important;
+  min-width: 32px !important;
+  padding: 6px 2px !important;
+}
+
+.layout-mode-mobile .pool-vertical-title {
+  font-size: 7.5px !important;
+  letter-spacing: 1px !important;
+}
+
+.layout-mode-mobile .bpmn-swimlane-row {
+  min-height: 115px !important;
+}
+
+.layout-mode-mobile .bpmn-lane-header {
+  width: 105px !important;
+  min-width: 105px !important;
+  padding: 6px 6px !important;
+  border-left-width: 5px !important;
+}
+
+.layout-mode-mobile .lane-name {
+  font-size: 9.5px !important;
+  line-height: 1.2 !important;
+}
+
+.layout-mode-mobile .lane-role {
+  font-size: 8px !important;
+}
+
+.layout-mode-mobile .bpmn-lane-cell {
+  min-width: 78px !important;
+  padding: 14px 4px 6px !important;
+}
+
+.layout-mode-mobile .bpmn-diagram-node {
+  gap: 3px !important;
+  padding: 2px !important;
+}
+
+.layout-mode-mobile .node-step-badge {
+  font-size: 6.5px !important;
+  padding: 1px 3px !important;
+}
+
+.layout-mode-mobile .node-shape.box-task {
+  width: 72px !important;
+  min-height: 38px !important;
+  padding: 3px 4px !important;
+  border-width: 2px !important;
+}
+
+.layout-mode-mobile .task-step-tag {
+  font-size: 5.5px !important;
+  margin-bottom: 1px !important;
+}
+
+.layout-mode-mobile .task-text {
+  font-size: 7.5px !important;
+  line-height: 1.15 !important;
+}
+
+.layout-mode-mobile .node-shape.circle-start,
+.layout-mode-mobile .node-shape.circle-end,
+.layout-mode-mobile .node-shape.circle-timer {
+  width: 34px !important;
+  height: 34px !important;
+}
+
+.layout-mode-mobile .node-shape.diamond-gateway,
+.layout-mode-mobile .node-shape.diamond-parallel {
+  width: 28px !important;
+  height: 28px !important;
+  border-width: 2px !important;
+}
+
+.layout-mode-mobile .gateway-cross {
+  font-size: 11px !important;
+}
+
+.layout-mode-mobile .gateway-plus {
+  font-size: 13px !important;
+}
+
+.layout-mode-mobile .node-label-caption {
+  font-size: 7.5px !important;
+  max-width: 74px !important;
+  line-height: 1.2 !important;
+}
+
+.layout-mode-mobile .node-buttons-row {
+  gap: 2px !important;
+}
+
+.layout-mode-mobile .node-quick-sym-btn {
+  font-size: 5.5px !important;
+  padding: 2px 3px !important;
+}
+
+.layout-mode-mobile .node-quick-lane-btn {
+  font-size: 5px !important;
+  padding: 2px 3px !important;
+}
+
+/* 2. TABLET BALANCED MODE */
+.layout-mode-tablet .bpmn-pool-wrapper {
+  min-width: 750px !important;
+}
+
+.layout-mode-tablet .bpmn-pool-header {
+  width: 42px !important;
+  min-width: 42px !important;
+}
+
+.layout-mode-tablet .pool-vertical-title {
+  font-size: 8.5px !important;
+}
+
+.layout-mode-tablet .bpmn-swimlane-row {
+  min-height: 135px !important;
+}
+
+.layout-mode-tablet .bpmn-lane-header {
+  width: 135px !important;
+  min-width: 135px !important;
+  padding: 8px 8px !important;
+}
+
+.layout-mode-tablet .lane-name {
+  font-size: 11px !important;
+}
+
+.layout-mode-tablet .lane-role {
+  font-size: 9px !important;
+}
+
+.layout-mode-tablet .bpmn-lane-cell {
+  min-width: 95px !important;
+  padding: 18px 6px 8px !important;
+}
+
+.layout-mode-tablet .node-shape.box-task {
+  width: 90px !important;
+  min-height: 42px !important;
+}
+
+.layout-mode-tablet .task-text {
+  font-size: 8px !important;
+}
+
+.layout-mode-tablet .node-label-caption {
+  font-size: 8.5px !important;
+  max-width: 95px !important;
+}
+
+.layout-mode-tablet .node-quick-sym-btn {
+  font-size: 6.5px !important;
+  padding: 3px 4px !important;
+}
+
+.layout-mode-tablet .node-quick-lane-btn {
+  font-size: 6px !important;
+  padding: 3px 4px !important;
+}
+
+/* 1.B MOBILE (HP) - WELCOME & CASE SELECT SCREENS */
+.layout-mode-mobile .welcome-box {
+  padding: 18px 14px !important;
+  gap: 14px !important;
+}
+
+.layout-mode-mobile .welcome-hero-title h1 {
+  font-size: 16px !important;
+  letter-spacing: 1px !important;
+}
+
+.layout-mode-mobile .welcome-hero-title .welcome-sub-title {
+  font-size: 7.5px !important;
+}
+
+.layout-mode-mobile .welcome-speech-text .speech-headline {
+  font-size: 11px !important;
+}
+
+.layout-mode-mobile .welcome-speech-text .speech-desc {
+  font-size: 10px !important;
+}
+
+.layout-mode-mobile .welcome-actions {
+  flex-direction: column !important;
+  width: 100% !important;
+}
+
+.layout-mode-mobile .welcome-actions .pixel-btn {
+  width: 100% !important;
+  font-size: 8px !important;
+  padding: 10px 12px !important;
+}
+
+.layout-mode-mobile .welcome-features-list {
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+}
+
+.layout-mode-mobile .cases-tier-grid {
+  grid-template-columns: 1fr !important;
+}
+
+.layout-mode-mobile .case-select-header {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+}
+
+.layout-mode-mobile .case-header-actions {
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+/* 2. TABLET BALANCED MODE */
+.layout-mode-tablet .cases-tier-grid {
+  grid-template-columns: repeat(2, 1fr) !important;
+}
+
+/* 3. LAPTOP / SMARTBOARD WIDE MODE */
+.layout-mode-desktop .bpmn-pool-wrapper {
+  min-width: 950px;
+}
+
+.layout-mode-desktop .bpmn-lane-header {
+  width: 170px;
+  min-width: 170px;
+}
 /* ==========================================================================
    MULTI-SCREEN VIEW SYSTEM (WELCOME, CASE SELECT, GAMEPLAY)
    ========================================================================== */
@@ -1843,6 +2197,13 @@ body {
   width: 100%;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+.welcome-top-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .welcome-audio-controls,
@@ -2202,6 +2563,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
   border-bottom: 3px solid #000;
   padding-bottom: 12px;
   margin-bottom: 8px;
@@ -2214,6 +2577,9 @@ body {
   border: 2px solid #000;
   box-shadow: 2px 2px 0 #000;
   border-radius: 4px;
+  white-space: normal;
+  line-height: 1.4;
+  max-width: 100%;
 }
 
 .tier-1-badge { background: #dcfce7; color: #15803d; }
@@ -2765,23 +3131,40 @@ body {
   }
 
   .hud-group {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr) repeat(2, 1fr);
-    align-items: center;
-    gap: 6px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     width: 100%;
   }
 
   #hudHomeBtn {
-    grid-column: span 3;
-    font-size: 8px;
-    padding: 5px 8px;
+    width: 100%;
+    font-size: 8.5px;
+    padding: 7px 10px;
     text-align: center;
     justify-content: center;
+    box-sizing: border-box;
   }
 
-  .hud-item {
+  /* Grid of stats (Mario, Coins, World, Time, Lives) in 5 neat columns or wrapped */
+  .hud-group .hud-item {
     gap: 2px;
+  }
+
+  .hud-group > div.hud-item {
+    flex: 1;
+    min-width: 48px;
+    text-align: center;
+    align-items: center;
+  }
+
+  /* Container for stats underneath the PILIH KASUS button */
+  .hud-stats-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 4px;
   }
 
   .hud-label {
@@ -2789,24 +3172,25 @@ body {
   }
 
   .hud-val {
-    font-size: 10px;
+    font-size: 9.5px;
   }
 
   .hud-controls {
     display: flex;
     justify-content: space-between;
     width: 100%;
-    gap: 6px;
-    padding-top: 4px;
+    gap: 4px;
+    padding-top: 6px;
     border-top: 1px dashed rgba(255, 255, 255, 0.25);
   }
 
   .hud-controls .pixel-btn-icon {
     flex: 1;
-    font-size: 7.5px;
-    padding: 6px 4px;
+    font-size: 7px;
+    padding: 6px 3px;
     text-align: center;
     justify-content: center;
+    white-space: nowrap;
     box-shadow: 1px 1px 0 #000;
   }
 
@@ -2936,68 +3320,103 @@ body {
   }
 
   .bpmn-pool-wrapper {
-    min-width: 720px;
+    min-width: 580px;
   }
 
   .bpmn-pool-header {
-    width: 38px;
-    min-width: 38px;
-    padding: 8px 2px;
+    width: 32px;
+    min-width: 32px;
+    padding: 6px 2px;
   }
 
   .pool-vertical-title {
-    font-size: 8.5px;
+    font-size: 7.5px;
     letter-spacing: 1px;
   }
 
   .bpmn-lane-header {
-    width: 120px;
-    min-width: 120px;
-    padding: 8px 6px;
-    border-left-width: 6px;
+    width: 105px;
+    min-width: 105px;
+    padding: 6px 6px;
+    border-left-width: 5px;
   }
 
   .lane-name {
-    font-size: 10px;
+    font-size: 9.5px;
+    line-height: 1.2;
   }
 
   .lane-role {
-    font-size: 8.5px;
+    font-size: 8px;
   }
 
   .bpmn-swimlane-row {
-    min-height: 130px;
+    min-height: 115px;
   }
 
   .bpmn-lane-cell {
-    min-width: 95px;
-    padding: 18px 6px 10px;
+    min-width: 78px;
+    padding: 14px 4px 6px;
   }
 
   /* Node elements on mobile */
   .node-shape.box-task {
-    width: 90px;
-    min-height: 42px;
+    width: 72px;
+    min-height: 38px;
     padding: 3px 4px;
+    border-width: 2px;
+  }
+
+  .task-step-tag {
+    font-size: 5.5px;
+    margin-bottom: 1px;
   }
 
   .task-text {
-    font-size: 8px;
+    font-size: 7.5px;
+    line-height: 1.15;
+  }
+
+  .node-shape.circle-start,
+  .node-shape.circle-end,
+  .node-shape.circle-timer {
+    width: 34px;
+    height: 34px;
+  }
+
+  .node-shape.diamond-gateway,
+  .node-shape.diamond-parallel {
+    width: 28px !important;
+    height: 28px !important;
+    border-width: 2px !important;
+  }
+
+  .gateway-cross {
+    font-size: 11px !important;
+  }
+
+  .gateway-plus {
+    font-size: 13px !important;
   }
 
   .node-label-caption {
-    font-size: 8.5px;
-    max-width: 95px;
+    font-size: 7.5px;
+    max-width: 74px;
+    line-height: 1.2;
+  }
+
+  .node-buttons-row {
+    gap: 2px;
   }
 
   .node-quick-sym-btn {
-    font-size: 6px;
-    padding: 4px 5px;
+    font-size: 5.5px;
+    padding: 2px 3px;
   }
 
   .node-quick-lane-btn {
-    font-size: 5.5px;
-    padding: 4px 5px;
+    font-size: 5px;
+    padding: 2px 3px;
   }
 
   /* 6. SCREEN 1: WELCOME / TITLE SCREEN ON MOBILE */
