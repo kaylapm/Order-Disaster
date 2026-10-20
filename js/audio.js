@@ -74,19 +74,19 @@ class RetroAudioEngine {
   startBGM() {
     this.init();
     // Stop any existing loop first to prevent duplicate timers
-    this.stopBGM();
+    if (this.bgmTimer) {
+      clearTimeout(this.bgmTimer);
+      this.bgmTimer = null;
+    }
 
     this.bgmPlaying = true;
     this.bgmStep = 0;
 
+    // Start playback step immediately
+    this.runBgmStep();
+
     if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume().then(() => {
-        if (this.bgmPlaying) {
-          this.runBgmStep();
-        }
-      }).catch(() => {});
-    } else {
-      this.runBgmStep();
+      this.ctx.resume().catch(() => {});
     }
 
     this.notifyChange();

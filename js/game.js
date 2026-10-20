@@ -65,23 +65,34 @@ class OrderDisasterGame {
 
   // Setup autoplay music on first user interaction
   setupAutoPlayMusic() {
-    const startMusicOnInteract = () => {
-      if (window.retroAudio && !window.retroAudio.bgmPlaying) {
+    const triggerAudio = () => {
+      if (!window.retroAudio) return;
+      window.retroAudio.init();
+
+      if (window.retroAudio.ctx && window.retroAudio.ctx.state === 'suspended') {
+        window.retroAudio.ctx.resume().catch(() => {});
+      }
+
+      if (!window.retroAudio.bgmPlaying || !window.retroAudio.bgmTimer) {
         window.retroAudio.startBGM();
       }
-      ['click', 'keydown', 'touchstart', 'pointerdown'].forEach((evt) => {
-        document.removeEventListener(evt, startMusicOnInteract);
+    };
+
+    const onUserInteract = () => {
+      triggerAudio();
+      ['click', 'keydown', 'touchstart', 'pointerdown', 'mousedown'].forEach((evt) => {
+        window.removeEventListener(evt, onUserInteract, true);
+        document.removeEventListener(evt, onUserInteract, true);
       });
     };
 
-    ['click', 'keydown', 'touchstart', 'pointerdown'].forEach((evt) => {
-      document.addEventListener(evt, startMusicOnInteract, { once: true });
+    ['click', 'keydown', 'touchstart', 'pointerdown', 'mousedown'].forEach((evt) => {
+      window.addEventListener(evt, onUserInteract, { once: true, capture: true });
+      document.addEventListener(evt, onUserInteract, { once: true, capture: true });
     });
 
-    // Also attempt immediate start if browser allows it
-    if (window.retroAudio) {
-      window.retroAudio.startBGM();
-    }
+    // Try immediate playback (works if browser previously allowed audio or policy permits)
+    triggerAudio();
   }
 
   // Screen Management (Welcome -> Case Select -> Gameplay POV)
