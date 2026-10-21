@@ -18,7 +18,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 
   <!-- Retro Stylesheet -->
-  <link rel="stylesheet" href="css/style.css?v=8.3">
+  <link rel="stylesheet" href="css/style.css?v=10.4">
 </head>
 <body>
 
@@ -120,14 +120,16 @@
   <section class="screen-view" id="caseSelectScreen">
     <div class="case-select-wrapper">
       <div class="case-select-header">
-        <button type="button" class="pixel-btn" id="caseSelectBackBtn" style="background: #f1f5f9; color: #000;">
-          MENU UTAMA
-        </button>
-        <div class="case-header-title">
-          <h2>WORLD SELECT: PILIH KASUS PROSES BISNIS</h2>
-          <p>Pilih kasus yang ingin diperbaiki oleh tim kamu di Smartboard (Total 5 Kasus)</p>
+        <div class="case-header-left">
+          <button type="button" class="pixel-btn" id="caseSelectBackBtn" style="background: #f1f5f9; color: #000;">
+            MENU UTAMA
+          </button>
+          <div class="case-header-title">
+            <h2>WORLD SELECT: PILIH KASUS PROSES BISNIS</h2>
+            <p>Pilih kasus yang ingin diperbaiki oleh tim kamu di Smartboard (Total 5 Kasus)</p>
+          </div>
         </div>
-        <div class="case-header-actions" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <div class="case-header-actions">
           <!-- Layout Switcher: HP / Tablet / Laptop -->
           <div class="layout-toggle-group" id="caseLayoutToggleGroup" title="Pilih Mode Tampilan Layar">
             <span class="layout-toggle-label">MODE:</span>
@@ -269,6 +271,11 @@
             <span style="font-size: 8px; color: #16a34a; background: #dcfce7; padding: 3px 6px; border: 1px solid #16a34a; border-radius: 2px;">LIVE BPMN ENGINE</span>
           </div>
           <div class="visualizer-header-controls">
+            <!-- Reset Ports button only -->
+            <button type="button" class="arrow-style-btn btn-reset-ports" id="resetPortsBtn" title="Reset semua titik sambungan (ports) panah ke default bpmn.io" style="color: #dc2626; border-color: #fca5a5;">
+              ↺ RESET PORTS
+            </button>
+
             <div class="visualizer-legend-mini">
               <span>○ Start</span>
               <span>▢ Task</span>
@@ -433,6 +440,9 @@
       <div id="victoryModalBody">
         <!-- Injected by game.js -->
       </div>
+      <div class="victory-actions-footer" id="victoryActionsFooter" style="display: flex; justify-content: center; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+        <!-- Injected dynamically by game.js with direct event listeners -->
+      </div>
     </div>
   </div>
 
@@ -459,9 +469,9 @@
   </div>
 
   <!-- Audio Synthesizer, BPMN Scenarios, Swimlane Visualizer, and Game Controller Scripts -->
-  <script src="js/audio.js?v=8.7"></script>
-  <script src="js/bpmn-data.js?v=8.7"></script>
-  <script src="js/bpmn-diagram.js?v=8.7"></script>
-  <script src="js/game.js?v=8.7"></script>
+  <script src="js/audio.js?v=10.3"></script>
+  <script src="js/bpmn-data.js?v=10.3"></script>
+  <script src="js/bpmn-diagram.js?v=10.3"></script>
+  <script src="js/game.js?v=10.3"></script>
 </body>
 </html>

@@ -87,8 +87,8 @@ class OrderDisasterGame {
     };
 
     ['click', 'keydown', 'touchstart', 'pointerdown', 'mousedown'].forEach((evt) => {
-      window.addEventListener(evt, onUserInteract, { once: true, capture: true });
-      document.addEventListener(evt, onUserInteract, { once: true, capture: true });
+      window.addEventListener(evt, onUserInteract, { once: true, capture: false });
+      document.addEventListener(evt, onUserInteract, { once: true, capture: false });
     });
 
     // Try immediate playback (works if browser previously allowed audio or policy permits)
@@ -105,6 +105,11 @@ class OrderDisasterGame {
     }
     window.retroAudio.playPipe();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // If entering caseSelectScreen, always refresh case selection cards
+    if (screenId === 'caseSelectScreen') {
+      this.renderCaseSelectionCards();
+    }
 
     // If leaving gamePlayScreen, stop running timer so it doesn't run in the background
     if (screenId !== 'gamePlayScreen') {
@@ -828,21 +833,64 @@ class OrderDisasterGame {
       <div style="font-family: 'Press Start 2P', monospace; font-size: 10px; color: #1e3a8a; margin-top: 8px;">
         REVIEW ALUR BPMN RESMI:
       </div>
-      <div style="display: flex; justify-content: center; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
-        <button class="pixel-btn" style="background: #eab308; color: #000;" onclick="game.closeModal('victoryModal'); game.showScreen('caseSelectScreen');">
+      <div class="solution-review-list" style="display: flex; flex-direction: column; gap: 6px; margin-top: 8px; max-height: 180px; overflow-y: auto;">
+        ${reviewHtml}
+      </div>
+    `;
+
+    const actionsFooter = document.getElementById('victoryActionsFooter');
+    if (actionsFooter) {
+      actionsFooter.innerHTML = `
+        <button type="button" class="pixel-btn" id="victoryChooseCaseBtn" style="background: #eab308; color: #000;">
           PILIH KASUS LAIN
         </button>
         ${this.currentLevelIndex < DISASTER_LEVELS.length - 1 ? `
-          <button class="pixel-btn" style="background: #22c55e; color: #000;" onclick="game.nextLevel()">
+          <button type="button" class="pixel-btn" id="victoryNextCaseBtn" style="background: #22c55e; color: #000;">
             KASUS BERIKUTNYA
           </button>
         ` : `
-          <button class="pixel-btn" style="background: var(--mario-coin-gold); color: #000;" onclick="game.closeModal('victoryModal'); game.showScreen('caseSelectScreen');">
+          <button type="button" class="pixel-btn" id="victoryAllDoneBtn" style="background: var(--mario-coin-gold); color: #000;">
             SEMUA 5 KASUS SELESAI!
           </button>
         `}
-      </div>
-    `;
+      `;
+
+      // Bind direct click and touch handlers so mobile browsers execute reliably
+      const chooseBtn = document.getElementById('victoryChooseCaseBtn');
+      if (chooseBtn) {
+        const handleChoose = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          window.retroAudio.playClick();
+          this.closeModal('victoryModal');
+          this.showScreen('caseSelectScreen');
+        };
+        chooseBtn.onclick = handleChoose;
+      }
+
+      const nextBtn = document.getElementById('victoryNextCaseBtn');
+      if (nextBtn) {
+        const handleNext = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          window.retroAudio.playClick();
+          this.nextLevel();
+        };
+        nextBtn.onclick = handleNext;
+      }
+
+      const allDoneBtn = document.getElementById('victoryAllDoneBtn');
+      if (allDoneBtn) {
+        const handleAllDone = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          window.retroAudio.playClick();
+          this.closeModal('victoryModal');
+          this.showScreen('caseSelectScreen');
+        };
+        allDoneBtn.onclick = handleAllDone;
+      }
+    }
 
     this.openModal('victoryModal');
   }
@@ -1021,6 +1069,43 @@ class OrderDisasterGame {
       };
     }
 
+    // Arrow Style Selector Buttons (Atur Alur Panah Antar-Swimlane)
+    document.querySelectorAll('.arrow-style-btn').forEach((btn) => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const mode = btn.dataset.arrowMode;
+        if (!mode) return;
+
+        document.querySelectorAll('.arrow-style-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        if (window.retroAudio) window.retroAudio.playClick();
+        if (this.swimlaneVisualizer) {
+          this.swimlaneVisualizer.setRoutingMode(mode);
+        }
+
+        const modeNames = {
+          smart: 'Siku Rapi (BPMN 2.0)',
+          curve: 'Lengkung Halus (Smooth Curve)',
+          direct: 'Garis Langsung (Direct Flow)'
+        };
+        this.showToast(`Gaya alur panah: ${modeNames[mode] || mode}`);
+      };
+    });
+
+    // Reset Ports button (kembali ke auto bpmn.io docking)
+    const resetPortsBtn = document.getElementById('resetPortsBtn');
+    if (resetPortsBtn) {
+      resetPortsBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (window.retroAudio) window.retroAudio.playPipe();
+        if (this.swimlaneVisualizer) {
+          this.swimlaneVisualizer.resetEdgePorts();
+        }
+        this.showToast('Titik sambungan (ports) panah di-reset ke standar otomatis!');
+      };
+    }
+
     // Responsive Layout Mode Switcher (HP, Tablet, Laptop)
     this.setupLayoutModeSwitcher();
 
@@ -1090,12 +1175,18 @@ class OrderDisasterGame {
         e.preventDefault();
         this.runVerification();
       } else if (e.key === 'm' || e.key === 'M') {
-        if (soundBtn) soundBtn.click();
+        if (window.retroAudio) {
+          const s = window.retroAudio.toggleSFX();
+          if (s) window.retroAudio.playCoin();
+        }
       } else if (e.key === 'b' || e.key === 'B') {
-        if (bgmBtn) bgmBtn.click();
+        if (window.retroAudio) {
+          window.retroAudio.toggleBGM();
+        }
       } else if (e.key === 'r' || e.key === 'R') {
         this.resetCurrentLevel();
       } else if (e.key === 'f' || e.key === 'F') {
+        const fsBtn = document.getElementById('fullscreenBtn');
         if (fsBtn) fsBtn.click();
       } else if (e.key === 'Escape') {
         document.querySelectorAll('.modal-overlay.active').forEach((m) => m.classList.remove('active'));
@@ -1106,23 +1197,33 @@ class OrderDisasterGame {
 
   // Modal Setup
   setupModals() {
-    // Close buttons on any element with data-modal-close
-    document.querySelectorAll('[data-modal-close]').forEach((btn) => {
-      btn.onclick = () => {
+    // Event delegation on document to catch all close clicks/taps reliably
+    const handleClose = (e) => {
+      const closeBtn = e.target.closest('[data-modal-close]');
+      if (closeBtn) {
+        e.preventDefault();
+        e.stopPropagation();
         window.retroAudio.playClick();
-        const modalId = btn.dataset.modalClose;
+        const modalId = closeBtn.dataset.modalClose;
         this.closeModal(modalId);
-      };
-    });
+        return;
+      }
 
-    // Close on overlay backdrop click
-    document.querySelectorAll('.modal-overlay').forEach((overlay) => {
-      overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) {
-          window.retroAudio.playClick();
-          overlay.classList.remove('active');
-        }
-      });
+      // Close on backdrop click (click outside modal content)
+      if (e.target.classList.contains('modal-overlay') && e.target.classList.contains('active')) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.retroAudio.playClick();
+        e.target.classList.remove('active');
+      }
+    };
+
+    document.addEventListener('click', handleClose);
+    document.addEventListener('touchend', (e) => {
+      // If clicking a close button, prevent delayed ghost clicks
+      if (e.target.closest('[data-modal-close]')) {
+        handleClose(e);
+      }
     });
   }
 
@@ -1130,6 +1231,12 @@ class OrderDisasterGame {
     window.retroAudio.playClick();
     const modal = document.getElementById(modalId);
     if (modal) modal.classList.add('active');
+  }
+
+  closeModal(modalId) {
+    window.retroAudio.playClick();
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.remove('active');
   }
 
   // Layout Switcher: HP (Mobile), Tablet, and Laptop (Desktop)

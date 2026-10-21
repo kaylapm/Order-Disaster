@@ -80,18 +80,48 @@ const DISASTER_LEVELS = [
     theme: 'Kedai Kopi Mario Express',
     difficulty: 'Mudah / Pemula',
     timeLimit: 300, // 5 menit
-    story: 'Kekacauan total di Drive-thru! Barista menuang espresso ke meja kosong sebelum kasir menerima pesanan pelanggan, dan kasir minta bayaran saat mobil sudah pergi!',
-    narrative: 'Proses bisnis dimulai ketika Mobil Pelanggan Tiba di konter pemesanan drive-thru. Kasir segera mencatat pesanan dengan Input Menu Pesanan pada sistem POS. Selanjutnya, kasir mengevaluasi pilihan cara bayar via gateway Metode Bayar Tunai? untuk menentukan pembayaran tunai atau QRIS. Setelah divalidasi, pesanan diteruskan ke Barista untuk memproses Racik Kopi Espresso. Barista kemudian melakukan Tuang Kopi Kemasan ke cup tahan panas. Alur proses berakhir tuntas saat Kopi Diterima Pelanggan di loket pengambilan.',
+    story: 'Kekacauan total di Drive-thru! Barista menuang espresso ke meja kosong sebelum kasir menerima pesanan pelanggan, dan kasir bingung bagaimana membedakan penanganan bayar tunai dengan scan QRIS!',
+    narrative: 'Proses bisnis dimulai ketika Mobil Pelanggan Tiba di loket pemesanan drive-thru (Start Event). Kasir segera melakukan Input Menu Pesanan pada sistem POS. Selanjutnya, kasir mengevaluasi pilihan metode bayar via Exclusive Gateway Metode Bayar Tunai?: jika pelanggan membayar TUNAI [Cash], kasir melakukan Terima Uang Tunai & Cetak Struk; jika memilih NON-TUNAI [QRIS], pelanggan melakukan Pindai Kode QRIS via smartphone. Setelah transaksi bayar tuntas terverifikasi, alur diteruskan ke Barista untuk melakukan Racik Kopi Espresso, dilanjutkan dengan Tuang Kopi Kemasan ke cup tahan panas. Alur proses berakhir tuntas saat Kopi Diterima Pelanggan di loket pengambilan (End Event).',
     
     pool: {
       name: 'POOL: KEDAI KOPI MARIO EXPRESS',
-      subtitle: 'Alur Bisnis Pesan Kopi Drive-Thru'
+      subtitle: 'Alur Bisnis Pesan Kopi Drive-Thru & Transaksi Pembayaran'
     },
     lanes: [
       { id: 'customer', name: 'Pelanggan (Customer)', icon: '👤', role: 'Pembeli Drive-Thru', bg: '#f0f9ff', border: '#0284c7' },
-      { id: 'cashier', name: 'Kasir & POS System', icon: '💳', role: 'Input Menu & Transaksi', bg: '#fffbeb', border: '#d97706' },
+      { id: 'cashier', name: 'Kasir & POS System', icon: '💳', role: 'Input Menu & Transaksi Bayar', bg: '#fffbeb', border: '#d97706' },
       { id: 'barista', name: 'Barista (Dapur Racik)', icon: '☕', role: 'Produksi Kopi Espresso', bg: '#f0fdf4', border: '#16a34a' }
     ],
+
+    // Definisi percabangan keputusan eksklusif (XOR) BPMN 2.0
+    exclusiveBranch: {
+      splitCardId: 'c5',            // Exclusive Gateway: Metode Bayar Tunai?
+      branch1CardIds: ['c7'],       // Jalur [Tunai]: Terima Uang Tunai & Cetak Struk (Lane Kasir)
+      branch1Label: '[Tunai]',
+      branch2CardIds: ['c8'],       // Jalur [QRIS]: Pindai Kode QRIS (Lane Pelanggan)
+      branch2Label: '[QRIS]',
+      joinCardId: 'c4'              // Bertemu kembali saat pesanan masuk dapur: Racik Kopi Espresso
+    },
+
+    // Kunci Routing & Ports Visual Alur Bersih (Default Solution Ports)
+    defaultEdgePorts: {
+      // Step 1 -> Step 2 (Mobil Tiba -> Input Menu)
+      'flow-arrow-0': { fromPort: 'bottom', toPort: 'left' },
+      // Step 2 -> Step 3 (Input Menu -> Metode Bayar Tunai?)
+      'flow-arrow-1': { fromPort: 'right', toPort: 'left' },
+      // Split XOR -> QRIS (Step 3 -> Step 5 di Pelanggan)
+      'flow-arrow-2-b2': { fromPort: 'top', toPort: 'left' },
+      // Split XOR -> Tunai (Step 3 -> Step 4 di Kasir)
+      'flow-arrow-2-b1': { fromPort: 'bottom', toPort: 'bottom' },
+      // Tunai -> Racik Kopi (Step 4 -> Step 6 di Barista)
+      'flow-arrow-3-join': { fromPort: 'right', toPort: 'left' },
+      // QRIS -> Racik Kopi (Step 5 -> Step 6 di Barista)
+      'flow-arrow-4-join': { fromPort: 'right', toPort: 'top' },
+      // Racik Kopi -> Tuang Kopi (Step 6 -> Step 7 di Barista)
+      'flow-arrow-5': { fromPort: 'right', toPort: 'left' },
+      // Tuang Kopi -> Kopi Diterima (Step 7 -> Step 8 di Pelanggan)
+      'flow-arrow-6': { fromPort: 'right', toPort: 'bottom' }
+    },
 
     initialCards: [
       {
@@ -99,14 +129,14 @@ const DISASTER_LEVELS = [
         text: 'Tuang Kopi Kemasan',
         currentSymbol: 'start',
         laneId: 'customer',
-        bugNote: 'Menuang kopi adalah Task di Lane Barista, bukan Start Event di tangan pelanggan!'
+        bugNote: 'Menuang kopi adalah Task operasional di Lane Barista, bukan Start Event di tangan pelanggan!'
       },
       {
         id: 'c1',
         text: 'Mobil Pelanggan Tiba',
         currentSymbol: 'task',
         laneId: 'cashier',
-        bugNote: 'Titik awal kedatangan pelanggan harusnya Start Event (○) di Lane Pelanggan!'
+        bugNote: 'Titik awal pemicu kedatangan pelanggan harusnya Start Event (○) di Lane Pelanggan!'
       },
       {
         id: 'c5',
@@ -114,6 +144,20 @@ const DISASTER_LEVELS = [
         currentSymbol: 'task',
         laneId: 'cashier',
         bugNote: 'Pilihan cara bayar Tunai vs QRIS adalah Exclusive Gateway (XOR ◇), bukan task biasa!'
+      },
+      {
+        id: 'c7',
+        text: 'Terima Uang Tunai',
+        currentSymbol: 'gateway',
+        laneId: 'barista',
+        bugNote: 'Menerima uang tunai berformat Verb-Object adalah Task (▢) di Lane Kasir untuk jalur bayar Tunai!'
+      },
+      {
+        id: 'c8',
+        text: 'Pindai Kode QRIS',
+        currentSymbol: 'end',
+        laneId: 'cashier',
+        bugNote: 'Memindai QRIS dilakukan oleh pembeli (Task ▢ di Lane Pelanggan) jika memilih non-tunai!'
       },
       {
         id: 'c2',
@@ -127,23 +171,25 @@ const DISASTER_LEVELS = [
         text: 'Kopi Diterima Pelanggan',
         currentSymbol: 'gateway',
         laneId: 'barista',
-        bugNote: 'Hasil akhir saat kopi diserahkan adalah End Event (●) di Lane Pelanggan!'
+        bugNote: 'Hasil akhir saat kopi diserahkan tuntas adalah End Event (●) di Lane Pelanggan!'
       },
       {
         id: 'c4',
         text: 'Racik Kopi Espresso',
         currentSymbol: 'task',
         laneId: 'barista',
-        bugNote: 'Barista meracik kopi setelah kasir selesai input pesanan dan konfirmasi pembayaran.'
+        bugNote: 'Barista meracik kopi (Task ▢ di Lane Barista) setelah kasir dan pelanggan menyelesaikan transaksi pembayaran.'
       }
     ],
 
-    correctSequence: ['c1', 'c2', 'c5', 'c4', 'c3', 'c6'],
+    correctSequence: ['c1', 'c2', 'c5', 'c7', 'c8', 'c4', 'c3', 'c6'],
 
     correctSymbols: {
       'c1': 'start',   // Mobil Pelanggan Tiba (Start Event)
       'c2': 'task',    // Input Menu Pesanan (Task: Verb-Object)
       'c5': 'gateway', // Metode Bayar Tunai? (Exclusive Gateway XOR)
+      'c7': 'task',    // Terima Uang Tunai (Task: Verb-Object - Branch Tunai)
+      'c8': 'task',    // Pindai Kode QRIS (Task: Verb-Object - Branch QRIS)
       'c4': 'task',    // Racik Kopi Espresso (Task: Verb-Object)
       'c3': 'task',    // Tuang Kopi Kemasan (Task: Verb-Object)
       'c6': 'end'      // Kopi Diterima Pelanggan (End Event)
@@ -153,18 +199,22 @@ const DISASTER_LEVELS = [
       'c1': 'customer',
       'c2': 'cashier',
       'c5': 'cashier',
+      'c7': 'cashier',
+      'c8': 'customer',
       'c4': 'barista',
       'c3': 'barista',
       'c6': 'customer'
     },
 
     explanations: {
-      'c1': 'Langkah 1: Kedatangan pelanggan memicu alur proses di Lane Pelanggan (○ Start Event).',
+      'c1': 'Langkah 1: Kedatangan mobil pelanggan memicu dimulainya proses di Lane Pelanggan (○ Start Event).',
       'c2': 'Langkah 2: Kasir mencatat pesanan format Verb-Object di Lane Kasir (▢ Task: Input Menu Pesanan).',
       'c5': 'Langkah 3: Kasir mengevaluasi pilihan metode bayar di Lane Kasir (◇ Exclusive Gateway XOR: Metode Bayar Tunai?).',
-      'c4': 'Langkah 4: Barista memproses peracikan kopi di Lane Barista (▢ Task: Racik Kopi Espresso).',
-      'c3': 'Langkah 5: Barista menuang kopi ke kemasan tahan panas di Lane Barista (▢ Task: Tuang Kopi Kemasan).',
-      'c6': 'Langkah 6: Pelanggan menerima kopi panas, siklus transaksi selesai di Lane Pelanggan (● End Event: Kopi Diterima Pelanggan).'
+      'c7': 'Langkah 4A [Jalur Tunai]: Kasir menerima pembayaran uang fisik di Lane Kasir (▢ Task: Terima Uang Tunai).',
+      'c8': 'Langkah 4B [Jalur QRIS]: Pelanggan memindai QR dinamis dengan ponsel di Lane Pelanggan (▢ Task: Pindai Kode QRIS).',
+      'c4': 'Langkah 5: Setelah pembayaran tuntas, Barista meracik espresso di Lane Barista (▢ Task: Racik Kopi Espresso).',
+      'c3': 'Langkah 6: Barista menuang kopi ke kemasan tahan panas di Lane Barista (▢ Task: Tuang Kopi Kemasan).',
+      'c6': 'Langkah 7: Pelanggan menerima kopi di loket, siklus transaksi selesai tuntas di Lane Pelanggan (● End Event: Kopi Diterima Pelanggan).'
     }
   },
 
@@ -177,12 +227,12 @@ const DISASTER_LEVELS = [
     theme: 'Peach Boba Milk Tea Lab',
     difficulty: 'Mudah / Pemula',
     timeLimit: 300,
-    story: 'Pelanggan diberi sedotan sebelum gelas boba disegel plastik! Koki memasak boba setelah pelanggan pulang, dan kasir minta bayar sebelum menu dicatat!',
-    narrative: 'Proses bisnis diawali saat Pembeli Tiba Antre di depan konter boba. Petugas kasir melayani dengan Input Pesanan Boba ke mesin kasir. Kasir kemudian mengajukan pilihan evaluasi via gateway Tambah Topping Puding? untuk menyesuaikan racikan. Di area dapur, koki melakukan Racik Teh Boba sesuai tingkat kemanisan yang dipesan. Gelas boba yang telah terisi diproses ke mesin untuk Segel Cup Minuman agar tertutup rapat dan higienis. Siklus proses bisnis selesai tuntas saat Boba Diterima Pembeli.',
+    story: 'Kekacauan di kedai boba! Koki dapur bingung pesanan mana yang harus ditambah pudding telur dan mana yang tanpa puding, sementara kasir lupa input catatan topping ke tiket dapur!',
+    narrative: 'Proses bisnis dimulai ketika Pembeli Tiba Antre di loket pemesanan (Start Event di Lane Pelanggan). Kasir segera melakukan Input Pesanan Boba pada sistem POS. Selanjutnya, kasir mengevaluasi pilihan ekstra topping via Exclusive Gateway Tambah Topping Puding?: jika pelanggan memilih [Ya / Topping Puding], kasir melakukan Tambah Topping Puding pada rincian pesanan dan kasir mengenakan biaya tambahan; jika pelanggan memilih [Tidak / Boba Standar], kasir langsung melakukan Konfirmasi Pesanan Standar tanpa biaya ekstra. Setelah rincian order tervalidasi, tiket diteruskan ke Koki Dapur untuk melakukan Racik Teh Boba, dilanjutkan dengan Segel Cup Minuman menggunakan mesin sealer press. Siklus proses bisnis selesai tuntas saat Boba Diterima Pembeli di loket pengambilan (End Event).',
     
     pool: {
       name: 'POOL: PEACH BOBA MILK TEA LAB',
-      subtitle: 'Alur Bisnis Pembuatan Minuman Boba'
+      subtitle: 'Alur Bisnis Pembuatan Minuman Boba & Kustomisasi Topping'
     },
     lanes: [
       { id: 'customer', name: 'Pelanggan Boba', icon: '🧋', role: 'Konsumen Pembeli', bg: '#fdf2f8', border: '#db2777' },
@@ -190,13 +240,43 @@ const DISASTER_LEVELS = [
       { id: 'kitchen', name: 'Koki Racik Dapur', icon: '👩‍🍳', role: 'Pengocok Teh & Sealer Cup', bg: '#f0fdf4', border: '#16a34a' }
     ],
 
+    // Definisi percabangan keputusan eksklusif (XOR) BPMN 2.0
+    exclusiveBranch: {
+      splitCardId: 'a3',            // Exclusive Gateway: Tambah Topping Puding?
+      branch1CardIds: ['a7'],       // Jalur [Ya / Puding]: Tambah Topping Puding (Lane Kasir)
+      branch1Label: '[Ya]',
+      branch2CardIds: ['a8'],       // Jalur [Tidak / Standar]: Konfirmasi Pesanan Standar (Lane Kasir)
+      branch2Label: '[Tidak]',
+      joinCardId: 'a4'              // Bertemu kembali di dapur: Racik Teh Boba
+    },
+
+    // Kunci Routing & Ports Visual Alur Bersih (Default Solution Ports)
+    defaultEdgePorts: {
+      // Step 1 -> Step 2 (Pembeli Tiba [Right] -> Input Pesanan [Left])
+      'flow-arrow-0': { fromPort: 'right', toPort: 'left' },
+      // Step 2 -> Step 3 (Input Pesanan [Right] -> Tambah Topping Puding? [Left])
+      'flow-arrow-1': { fromPort: 'right', toPort: 'left' },
+      // Split XOR -> [Ya] (Step 3 [Right] -> Step 4 Tambah Topping Puding [Left])
+      'flow-arrow-2-b1': { fromPort: 'right', toPort: 'left' },
+      // Split XOR -> [Tidak] (Step 3 [Top] -> Step 5 Konfirmasi Menu Standar [Top])
+      'flow-arrow-2-b2': { fromPort: 'top', toPort: 'top' },
+      // [Ya] Tambah Topping Puding -> Step 6 Racik Teh Boba (Step 4 [Bottom] -> Step 6 [Left])
+      'flow-arrow-3-join': { fromPort: 'bottom', toPort: 'left' },
+      // [Tidak] Konfirmasi Menu Standar -> Step 6 Racik Teh Boba (Step 5 [Right] -> Step 6 [Top])
+      'flow-arrow-4-join': { fromPort: 'right', toPort: 'top' },
+      // Step 6 Racik Teh Boba -> Step 7 Segel Cup Minuman (Step 6 [Right] -> Step 7 [Left])
+      'flow-arrow-5': { fromPort: 'right', toPort: 'left' },
+      // Step 7 Segel Cup Minuman -> Step 8 Boba Diterima Pembeli (Step 7 [Right] -> Step 8 [Left])
+      'flow-arrow-6': { fromPort: 'right', toPort: 'left' }
+    },
+
     initialCards: [
       {
         id: 'a5',
         text: 'Segel Cup Minuman',
         currentSymbol: 'start',
         laneId: 'customer',
-        bugNote: 'Menyegel cup plastik adalah Task di Dapur, bukan Start Event di tangan pembeli!'
+        bugNote: 'Menyegel cup plastik adalah Task operasional di Dapur, bukan Start Event di tangan pembeli!'
       },
       {
         id: 'a1',
@@ -206,18 +286,32 @@ const DISASTER_LEVELS = [
         bugNote: 'Titik kedatangan pembeli harus Start Event (○) di Lane Pelanggan!'
       },
       {
+        id: 'a7',
+        text: 'Tambah Topping Puding',
+        currentSymbol: 'gateway',
+        laneId: 'kitchen',
+        bugNote: 'Menambah topping puding berformat Verb-Object adalah Task (▢) di Lane Kasir untuk jalur kondisi [Ya]!'
+      },
+      {
         id: 'a4',
         text: 'Racik Teh Boba',
         currentSymbol: 'end',
         laneId: 'cashier',
-        bugNote: 'Meracik teh boba adalah Task di Dapur, bukan penutup akhir proses!'
+        bugNote: 'Meracik teh boba adalah Task operasional di Dapur, bukan penutup akhir proses!'
       },
       {
         id: 'a3',
         text: 'Tambah Topping Puding?',
         currentSymbol: 'task',
         laneId: 'cashier',
-        bugNote: 'Pertanyaan kondisi topping tambahan adalah Exclusive Gateway (XOR ◇)!'
+        bugNote: 'Evaluasi keputusan opsi topping adalah Exclusive Gateway (XOR ◇) di Lane Kasir!'
+      },
+      {
+        id: 'a8',
+        text: 'Konfirmasi Menu Standar',
+        currentSymbol: 'task',
+        laneId: 'customer',
+        bugNote: 'Konfirmasi menu standar adalah Task (▢) di Lane Kasir untuk jalur kondisi [Tidak] tanpa ekstra puding!'
       },
       {
         id: 'a2',
@@ -235,12 +329,14 @@ const DISASTER_LEVELS = [
       }
     ],
 
-    correctSequence: ['a1', 'a2', 'a3', 'a4', 'a5', 'a6'],
+    correctSequence: ['a1', 'a2', 'a3', 'a7', 'a8', 'a4', 'a5', 'a6'],
 
     correctSymbols: {
       'a1': 'start',   // Pembeli Tiba Antre (Start Event)
       'a2': 'task',    // Input Pesanan Boba (Task: Verb-Object)
       'a3': 'gateway', // Tambah Topping Puding? (Exclusive Gateway XOR)
+      'a7': 'task',    // Tambah Topping Puding (Task: Verb-Object - Branch Ya)
+      'a8': 'task',    // Konfirmasi Menu Standar (Task: Verb-Object - Branch Tidak)
       'a4': 'task',    // Racik Teh Boba (Task: Verb-Object)
       'a5': 'task',    // Segel Cup Minuman (Task: Verb-Object)
       'a6': 'end'      // Boba Diterima Pembeli (End Event)
@@ -250,18 +346,22 @@ const DISASTER_LEVELS = [
       'a1': 'customer',
       'a2': 'cashier',
       'a3': 'cashier',
+      'a7': 'cashier',
+      'a8': 'cashier',
       'a4': 'kitchen',
       'a5': 'kitchen',
       'a6': 'customer'
     },
 
     explanations: {
-      'a1': 'Langkah 1: Pembeli datang ke outlet memicu alur di Lane Pelanggan (○ Start Event).',
-      'a2': 'Langkah 2: Kasir mencatat pesanan di Lane Kasir (▢ Task: Input Pesanan Boba).',
-      'a3': 'Langkah 3: Kasir mengevaluasi pilihan topping ekstra di Lane Kasir (◇ Exclusive Gateway XOR).',
-      'a4': 'Langkah 4: Dapur meracik teh susu dan boba hangat di Lane Koki (▢ Task: Racik Teh Boba).',
-      'a5': 'Langkah 5: Minuman ditutup rapat dengan mesin cup sealer di Lane Koki (▢ Task: Segel Cup Minuman).',
-      'a6': 'Langkah 6: Pembeli menerima pesanan boba siap minum di Lane Pelanggan (● End Event: Boba Diterima Pembeli).'
+      'a1': 'Langkah 1: Pembeli datang ke outlet memicu dimulainya proses di Lane Pelanggan (○ Start Event).',
+      'a2': 'Langkah 2: Kasir mencatat menu format Verb-Object di Lane Kasir (▢ Task: Input Pesanan Boba).',
+      'a3': 'Langkah 3: Kasir mengevaluasi pilihan topping ekstra di Lane Kasir (◇ Exclusive Gateway XOR: Tambah Topping Puding?).',
+      'a7': 'Langkah 4A [Jalur Ya / Puding]: Kasir menambahkan topping puding telur dan menghitung biaya ekstra di Lane Kasir (▢ Task: Tambah Topping Puding).',
+      'a8': 'Langkah 4B [Jalur Tidak / Standar]: Kasir memproses pesanan standar tanpa tambahan topping di Lane Kasir (▢ Task: Konfirmasi Menu Standar).',
+      'a4': 'Langkah 5: Tiket pesanan masuk dapur, koki meracik teh susu dan boba di Lane Koki Dapur (▢ Task: Racik Teh Boba).',
+      'a5': 'Langkah 6: Cup minuman ditutup rapat dengan mesin press di Lane Koki Dapur (▢ Task: Segel Cup Minuman).',
+      'a6': 'Langkah 7: Pembeli menerima pesanan minuman segar di loket serah terima, proses tuntas di Lane Pelanggan (● End Event: Boba Diterima Pembeli).'
     }
   },
 
@@ -277,12 +377,12 @@ const DISASTER_LEVELS = [
     theme: 'Mario Fast-Food Burger Lab',
     difficulty: 'Menengah',
     timeLimit: 300,
-    story: 'Koki membungkus kertas kosong dengan kantong plastik sebelum dagingnya digoreng! Dapur berasap dan pelanggan menunggu 2 jam!',
-    narrative: 'Proses operasional terpicu ketika Pesanan Kiosk Dimulai di layar mandiri restoran. Pelanggan melakukan Pilih Paket Burger pada menu kiosk. Sistem POS secara otomatis mengevaluasi gateway Bahan Patty Tersedia? untuk memastikan persediaan daging mencukupi. Setelah divalidasi, koki dapur bergegas Panggang Daging Patty hingga matang merata di grill. Koki kemudian melakukan Kemas Paket Burger rapi dengan kertas pembungkus tahan minyak. Alur proses selesai saat Burger Diterima Pelanggan di loket pengambilan.',
+    story: 'Kekacauan di dapur burger! Koki membungkus kertas kosong saat daging habis, dan kasir tetap menerima uang pelanggan padahal persediaan patty daging di gudang sedang kosong!',
+    narrative: 'Proses bisnis dimulai saat Pesanan Kiosk Dimulai di layar mandiri restoran (Start Event di Lane Pelanggan). Pelanggan melakukan Pilih Paket Burger pada menu kiosk. Sistem POS & Inventory secara otomatis mengevaluasi ketersediaan bahan via Exclusive Gateway Stok Bahan Cukup?: jika [Cukup / Ada], sistem melakukan Terbitkan Tiket Masak ke dapur, koki melakukan Panggang Daging Patty, dilanjutkan dengan Kemas Paket Burger; jika [Habis / Kosong], sistem POS melakukan Tampilkan Notifikasi Habis dan otomatis menawarkan menu alternatif kepada pelanggan. Setelah burger matang dikemas rapi, seluruh siklus proses selesai tuntas saat Burger Diterima Pelanggan di loket pengambilan (End Event).',
     
     pool: {
       name: 'POOL: MARIO FAST-FOOD BURGER LAB',
-      subtitle: 'Alur Bisnis Pemesanan & Dapur Kiosk'
+      subtitle: 'Alur Bisnis Pemesanan Kiosk & Manajemen Stok Dapur'
     },
     lanes: [
       { id: 'customer', name: 'Pelanggan (Kiosk Layar Sentuh)', icon: '👤', role: 'Pemesanan Mandiri', bg: '#f0f9ff', border: '#0284c7' },
@@ -290,13 +390,43 @@ const DISASTER_LEVELS = [
       { id: 'kitchen', name: 'Koki Dapur (Kitchen Cook)', icon: '👨‍🍳', role: 'Pemanggangan & Packaging', bg: '#f0fdf4', border: '#16a34a' }
     ],
 
+    // Definisi percabangan keputusan eksklusif (XOR) BPMN 2.0
+    exclusiveBranch: {
+      splitCardId: 'b2',            // Exclusive Gateway: Stok Bahan Cukup?
+      branch1CardIds: ['b3'],       // Jalur [Cukup]: Terbitkan Tiket Masak (Lane POS)
+      branch1Label: '[Cukup]',
+      branch2CardIds: ['b7'],       // Jalur [Habis]: Tampilkan Menu Habis (Lane Pelanggan)
+      branch2Label: '[Habis]',
+      joinCardId: 'b5'              // Bertemu kembali ke proses berikutnya / serah terima
+    },
+
+    // Kunci Routing & Ports Visual Alur Bersih (Default Solution Ports)
+    defaultEdgePorts: {
+      // Step 1 -> Step 2 (Pesanan Kiosk [Bottom] -> Pilih Paket Burger [Left])
+      'flow-arrow-0': { fromPort: 'right', toPort: 'left' },
+      // Step 2 -> Step 3 (Pilih Paket Burger [Right] -> Stok Bahan Cukup? [Left])
+      'flow-arrow-1': { fromPort: 'right', toPort: 'left' },
+      // Split XOR -> [Cukup] (Step 3 [Right] -> Step 4 Terbitkan Tiket Masak [Left])
+      'flow-arrow-2-b1': { fromPort: 'right', toPort: 'left' },
+      // Split XOR -> [Habis] (Step 3 [Top] -> Step 5 Tampilkan Menu Habis [Top])
+      'flow-arrow-2-b2': { fromPort: 'top', toPort: 'top' },
+      // [Cukup] Terbitkan Tiket -> Panggang Daging Patty (Step 4 [Bottom] -> Step 6 [Left])
+      'flow-arrow-3-join': { fromPort: 'bottom', toPort: 'left' },
+      // [Habis] Tampilkan Menu Habis -> Panggang Daging / Alur Join (Step 5 [Right] -> Step 6 [Top])
+      'flow-arrow-4-join': { fromPort: 'right', toPort: 'top' },
+      // Panggang Daging Patty -> Kemas Paket Burger (Step 6 [Right] -> Step 7 [Left])
+      'flow-arrow-5': { fromPort: 'right', toPort: 'left' },
+      // Kemas Paket Burger -> Burger Diterima Pelanggan (Step 7 [Right] -> Step 8 [Left])
+      'flow-arrow-6': { fromPort: 'right', toPort: 'left' }
+    },
+
     initialCards: [
       {
         id: 'b4',
         text: 'Kemas Paket Burger',
         currentSymbol: 'start',
         laneId: 'customer',
-        bugNote: 'Mengemas burger adalah Task di Dapur, bukan Start Event di tangan pelanggan!'
+        bugNote: 'Mengemas burger adalah Task operasional di Dapur, bukan Start Event di tangan pelanggan!'
       },
       {
         id: 'b1',
@@ -306,25 +436,39 @@ const DISASTER_LEVELS = [
         bugNote: 'Awal mula transaksi di layar sentuh adalah Start Event (○) di Lane Pelanggan!'
       },
       {
+        id: 'b8',
+        text: 'Pilih Paket Burger',
+        currentSymbol: 'gateway',
+        laneId: 'kitchen',
+        bugNote: 'Memilih paket menu adalah Task (▢) di Lane Pelanggan pada layar sentuh kiosk!'
+      },
+      {
         id: 'b3',
-        text: 'Panggang Daging Patty',
+        text: 'Terbitkan Tiket Masak',
         currentSymbol: 'end',
         laneId: 'kitchen',
-        bugNote: 'Memanggang patty daging adalah Task operasional dapur, bukan End Event!'
+        bugNote: 'Menerbitkan tiket pesanan adalah Task (▢) di Lane Sistem POS saat stok bahan terverifikasi [Cukup]!'
       },
       {
         id: 'b2',
         text: 'Stok Bahan Cukup?',
         currentSymbol: 'task',
         laneId: 'customer',
-        bugNote: 'Pemeriksaan stok Ya/Tidak adalah Exclusive Gateway (XOR ◇) di Sistem POS!'
+        bugNote: 'Pemeriksaan stok bahan baku Cukup vs Habis adalah Exclusive Gateway (XOR ◇) di Sistem POS!'
+      },
+      {
+        id: 'b7',
+        text: 'Tampilkan Menu Habis',
+        currentSymbol: 'task',
+        laneId: 'kitchen',
+        bugNote: 'Menampilkan peringatan stok kosong adalah Task (▢) di Lane Pelanggan jika kondisi stok [Habis]!'
       },
       {
         id: 'b5',
-        text: 'Inspeksi Kematangan Burger',
+        text: 'Panggang Daging Patty',
         currentSymbol: 'gateway',
         laneId: 'pos',
-        bugNote: 'Pemeriksaan QC kematangan berformat Verb-Object adalah Task (▢) di Lane Dapur!'
+        bugNote: 'Memanggang patty daging sapi berformat Verb-Object adalah Task (▢) di Lane Koki Dapur!'
       },
       {
         id: 'b6',
@@ -335,33 +479,39 @@ const DISASTER_LEVELS = [
       }
     ],
 
-    correctSequence: ['b1', 'b2', 'b3', 'b5', 'b4', 'b6'],
+    correctSequence: ['b1', 'b8', 'b2', 'b3', 'b7', 'b5', 'b4', 'b6'],
 
     correctSymbols: {
       'b1': 'start',   // Pesanan Kiosk Dimulai (Start Event)
+      'b8': 'task',    // Pilih Paket Burger (Task: Verb-Object)
       'b2': 'gateway', // Stok Bahan Cukup? (Exclusive Gateway XOR)
-      'b3': 'task',    // Panggang Daging Patty (Task: Verb-Object)
-      'b5': 'task',    // Inspeksi Kematangan Burger (Task: Verb-Object)
+      'b3': 'task',    // Terbitkan Tiket Masak (Task: Verb-Object - Branch Cukup)
+      'b7': 'task',    // Tampilkan Menu Habis (Task: Verb-Object - Branch Habis)
+      'b5': 'task',    // Panggang Daging Patty (Task: Verb-Object)
       'b4': 'task',    // Kemas Paket Burger (Task: Verb-Object)
       'b6': 'end'      // Burger Diterima Pelanggan (End Event)
     },
 
     correctLanes: {
       'b1': 'customer',
+      'b8': 'customer',
       'b2': 'pos',
-      'b3': 'kitchen',
+      'b3': 'pos',
+      'b7': 'customer',
       'b5': 'kitchen',
       'b4': 'kitchen',
       'b6': 'customer'
     },
 
     explanations: {
-      'b1': 'Langkah 1: Pembeli menyentuh layar kiosk untuk memulai pesanan (○ Start Event di Lane Pelanggan).',
-      'b2': 'Langkah 2: Sistem POS mengevaluasi ketersediaan stok bahan baku (◇ Exclusive Gateway XOR di Lane POS).',
-      'b3': 'Langkah 3: Koki memanggang patty daging sapi di grill (▢ Task: Panggang Daging Patty di Lane Dapur).',
-      'b5': 'Langkah 4: Koki menginspeksi kematangan dan saus (▢ Task: Inspeksi Kematangan Burger di Lane Dapur).',
-      'b4': 'Langkah 5: Koki membungkus burger rapi ke kantong pesan (▢ Task: Kemas Paket Burger di Lane Dapur).',
-      'b6': 'Langkah 6: Makanan diserahkan hangat ke pelanggan (● End Event: Burger Diterima Pelanggan).'
+      'b1': 'Langkah 1: Pembeli menyentuh layar kiosk untuk memulai proses (○ Start Event di Lane Pelanggan).',
+      'b8': 'Langkah 2: Pembeli memilih paket menu burger dan kentang di layar kiosk (▢ Task: Pilih Paket Burger di Lane Pelanggan).',
+      'b2': 'Langkah 3: Sistem POS memeriksa data gudang real-time (◇ Exclusive Gateway XOR: Stok Bahan Cukup? di Lane POS).',
+      'b3': 'Langkah 4A [Jalur Cukup]: Stok tersedia, sistem POS menerbitkan tiket pesanan ke dapur (▢ Task: Terbitkan Tiket Masak di Lane POS).',
+      'b7': 'Langkah 4B [Jalur Habis]: Stok habis, sistem menampilkan notifikasi stok kosong di layar pembeli (▢ Task: Tampilkan Menu Habis di Lane Pelanggan).',
+      'b5': 'Langkah 5: Koki memanggang patty daging sapi di atas grill (▢ Task: Panggang Daging Patty di Lane Koki Dapur).',
+      'b4': 'Langkah 6: Koki membungkus burger rapi ke kemasan kertas tahan minyak (▢ Task: Kemas Paket Burger di Lane Koki Dapur).',
+      'b6': 'Langkah 7: Pesanan diserahkan hangat ke pelanggan di loket pengambilan, proses tuntas (● End Event: Burger Diterima Pelanggan).'
     }
   },
 
@@ -374,12 +524,12 @@ const DISASTER_LEVELS = [
     theme: 'Toad Pharmacy & Clinic',
     difficulty: 'Menengah',
     timeLimit: 300,
-    story: 'Apoteker menyerahkan obat keras sebelum dokter memverifikasi resep! Pasien disuruh meracik kapsul sendiri di ruang tunggu!',
-    narrative: 'Proses bisnis bermula saat Pasien Serahkan Resep ke petugas loket penerimaan apotek. Dokter atau verifikator medis menjalankan Verifikasi Resep Dokter untuk memeriksa kecocokan dosis dan riwayat alergi. Sistem kemudian mengevaluasi kondisi gateway Stok Obat Tersedia? untuk memastikan ketersediaan bahan farmasi. Setelah terkonfirmasi lengkap, apoteker di laboratorium racik melakukan Racik Kapsul Obat dengan takaran presisi. Apoteker lalu Cetak Etiket Dosis pada bungkus obat sebelum diserahkan. Siklus layanan farmasi tuntas saat Obat Diterima Pasien di loket penyerahan.',
+    story: 'Apoteker menyerahkan obat keras sebelum dokter memverifikasi resep! Dokter bingung memeriksa riwayat alergi pasien, apakah harus mengganti racikan alternatif yang aman atau langsung mengonfirmasi resep standar!',
+    narrative: 'Proses bisnis dimulai saat Resep Dokter Diterima di loket apotek (Start Event di Lane Pasien). Dokter di loket verifikasi segera melakukan Verifikasi Validitas Resep guna memeriksa keabsahan diagnosis dan takaran. Selanjutnya, dokter mengevaluasi riwayat rekam medis pasien via Exclusive Gateway Ada Riwayat Alergi?: jika pasien [Ada Alergi], dokter melakukan Ganti Resep Alternatif dengan formula senyawa yang aman bagi tubuh pasien; jika [Tidak Alergi], dokter melakukan Konfirmasi Formula Standar sesuai anjuran awal. Setelah resep tervalidasi aman, lembar instruksi diserahkan ke Apoteker untuk melakukan Racik Kapsul Obat dengan timbangan presisi, dilanjutkan dengan Tempel Etiket Dosis (aturan pakai 3x sehari) pada kemasan obat. Siklus pelayanan farmasi tuntas saat Obat Diterima Pasien di loket penyerahan (End Event).',
     
     pool: {
       name: 'POOL: TOAD PHARMACY & HEALING LAB',
-      subtitle: 'Alur Bisnis Penebusan Resep Obat Farmasi'
+      subtitle: 'Alur Bisnis Penebusan Resep Obat & Validasi Alergi Pasien'
     },
     lanes: [
       { id: 'patient', name: 'Pasien / Pembeli', icon: '🤒', role: 'Konsumen Resep', bg: '#f0f9ff', border: '#0284c7' },
@@ -387,13 +537,43 @@ const DISASTER_LEVELS = [
       { id: 'pharmacist', name: 'Apoteker Racik Obat', icon: '💊', role: 'Peracikan & Etiket Dosis', bg: '#f0fdf4', border: '#16a34a' }
     ],
 
+    // Definisi percabangan keputusan eksklusif (XOR) BPMN 2.0
+    exclusiveBranch: {
+      splitCardId: 'd3',            // Exclusive Gateway: Ada Riwayat Alergi?
+      branch1CardIds: ['d7'],       // Jalur [Ada Alergi]: Ganti Resep Alternatif (Lane Dokter)
+      branch1Label: '[Ada]',
+      branch2CardIds: ['d8'],       // Jalur [Tidak Alergi]: Konfirmasi Formula Standar (Lane Dokter)
+      branch2Label: '[Tidak]',
+      joinCardId: 'd4'              // Bertemu kembali di laboratorium apoteker: Racik Kapsul Obat
+    },
+
+    // Kunci Routing & Ports Visual Alur Bersih (Default Solution Ports)
+    defaultEdgePorts: {
+      // Step 1 -> Step 2 (Resep Diterima -> Verifikasi Resep)
+      'flow-arrow-0': { fromPort: 'bottom', toPort: 'left' },
+      // Step 2 -> Step 3 (Verifikasi Resep -> Ada Riwayat Alergi?)
+      'flow-arrow-1': { fromPort: 'right', toPort: 'left' },
+      // Split XOR -> [Ada Alergi] (Step 3 -> Step 4 Ganti Resep Alternatif)
+      'flow-arrow-2-b1': { fromPort: 'top', toPort: 'left' },
+      // Split XOR -> [Tidak Alergi] (Step 3 -> Step 5 Konfirmasi Formula Standar)
+      'flow-arrow-2-b2': { fromPort: 'bottom', toPort: 'left' },
+      // [Ada] Ganti Resep -> Racik Kapsul Obat (Step 4 -> Step 6 di Apoteker)
+      'flow-arrow-3-join': { fromPort: 'right', toPort: 'top' },
+      // [Tidak] Konfirmasi -> Racik Kapsul Obat (Step 5 -> Step 6 di Apoteker)
+      'flow-arrow-4-join': { fromPort: 'right', toPort: 'left' },
+      // Racik Kapsul Obat -> Tempel Etiket Dosis (Step 6 -> Step 7 di Apoteker)
+      'flow-arrow-5': { fromPort: 'right', toPort: 'left' },
+      // Tempel Etiket Dosis -> Obat Diterima Pasien (Step 7 -> Step 8 di Pasien)
+      'flow-arrow-6': { fromPort: 'right', toPort: 'bottom' }
+    },
+
     initialCards: [
       {
         id: 'd4',
         text: 'Racik Kapsul Obat',
         currentSymbol: 'start',
         laneId: 'patient',
-        bugNote: 'Meracik kapsul adalah Task di Lane Apoteker, bukan Start Event di tangan pasien!'
+        bugNote: 'Meracik kapsul adalah Task operasional di Lane Apoteker, bukan Start Event di tangan pasien!'
       },
       {
         id: 'd1',
@@ -407,14 +587,28 @@ const DISASTER_LEVELS = [
         text: 'Tempel Etiket Dosis',
         currentSymbol: 'end',
         laneId: 'patient',
-        bugNote: 'Menempel etiket dosis adalah Task di Lane Apoteker, bukan End Event di pasien!'
+        bugNote: 'Menempel etiket dosis adalah Task operasional di Lane Apoteker, bukan End Event di pasien!'
       },
       {
         id: 'd3',
         text: 'Ada Riwayat Alergi?',
         currentSymbol: 'task',
         laneId: 'doctor',
-        bugNote: 'Pemeriksaan kondisi alergi pasien adalah Exclusive Gateway (XOR ◇) di Lane Dokter!'
+        bugNote: 'Evaluasi keputusan kondisi alergi pasien adalah Exclusive Gateway (XOR ◇) di Lane Dokter!'
+      },
+      {
+        id: 'd7',
+        text: 'Ganti Resep Alternatif',
+        currentSymbol: 'gateway',
+        laneId: 'pharmacist',
+        bugNote: 'Mengganti resep obat berformat Verb-Object adalah Task (▢) di Lane Dokter jika kondisi [Ada Alergi]!'
+      },
+      {
+        id: 'd8',
+        text: 'Konfirmasi Formula Standar',
+        currentSymbol: 'task',
+        laneId: 'patient',
+        bugNote: 'Mengonfirmasi formula standar berformat Verb-Object adalah Task (▢) di Lane Dokter jika kondisi [Tidak Alergi]!'
       },
       {
         id: 'd2',
@@ -428,16 +622,18 @@ const DISASTER_LEVELS = [
         text: 'Obat Diterima Pasien',
         currentSymbol: 'task',
         laneId: 'doctor',
-        bugNote: 'Penyerahan obat dan selesainya pengobatan adalah End Event (●) di Lane Pasien!'
+        bugNote: 'Penyerahan obat dan selesainya pelayanan farmasi adalah End Event (●) di Lane Pasien!'
       }
     ],
 
-    correctSequence: ['d1', 'd2', 'd3', 'd4', 'd5', 'd6'],
+    correctSequence: ['d1', 'd2', 'd3', 'd7', 'd8', 'd4', 'd5', 'd6'],
 
     correctSymbols: {
       'd1': 'start',   // Resep Dokter Diterima (Start Event)
       'd2': 'task',    // Verifikasi Validitas Resep (Task: Verb-Object)
       'd3': 'gateway', // Ada Riwayat Alergi? (Exclusive Gateway XOR)
+      'd7': 'task',    // Ganti Resep Alternatif (Task: Verb-Object - Branch Ada Alergi)
+      'd8': 'task',    // Konfirmasi Formula Standar (Task: Verb-Object - Branch Tidak Alergi)
       'd4': 'task',    // Racik Kapsul Obat (Task: Verb-Object)
       'd5': 'task',    // Tempel Etiket Dosis (Task: Verb-Object)
       'd6': 'end'      // Obat Diterima Pasien (End Event)
@@ -447,6 +643,8 @@ const DISASTER_LEVELS = [
       'd1': 'patient',
       'd2': 'doctor',
       'd3': 'doctor',
+      'd7': 'doctor',
+      'd8': 'doctor',
       'd4': 'pharmacist',
       'd5': 'pharmacist',
       'd6': 'patient'
@@ -454,11 +652,13 @@ const DISASTER_LEVELS = [
 
     explanations: {
       'd1': 'Langkah 1: Pasien datang menyerahkan lembar resep di loket (○ Start Event di Lane Pasien).',
-      'd2': 'Langkah 2: Dokter memvalidasi keaslian dosis obat (▢ Task: Verifikasi Validitas Resep di Lane Dokter).',
-      'd3': 'Langkah 3: Dokter mengevaluasi riwayat alergi obat pasien (◇ Exclusive Gateway XOR di Lane Dokter).',
-      'd4': 'Langkah 4: Apoteker meracik obat secara higienis (▢ Task: Racik Kapsul Obat di Lane Apoteker).',
-      'd5': 'Langkah 5: Apoteker menempelkan label petunjuk dosis 3x sehari (▢ Task: Tempel Etiket Dosis di Lane Apoteker).',
-      'd6': 'Langkah 6: Pasien menerima obat sembuh dengan aman (● End Event: Obat Diterima Pasien di Lane Pasien).'
+      'd2': 'Langkah 2: Dokter memvalidasi keaslian resep dan takaran (▢ Task: Verifikasi Validitas Resep di Lane Dokter).',
+      'd3': 'Langkah 3: Dokter mengevaluasi riwayat alergi obat pasien (◇ Exclusive Gateway XOR: Ada Riwayat Alergi? di Lane Dokter).',
+      'd7': 'Langkah 4A [Jalur Ada Alergi]: Pasien memiliki alergi, dokter meresepkan senyawa obat pengganti yang aman (▢ Task: Ganti Resep Alternatif di Lane Dokter).',
+      'd8': 'Langkah 4B [Jalur Tidak Alergi]: Pasien bebas dari alergi, dokter menyetujui resep formula standar (▢ Task: Konfirmasi Formula Standar di Lane Dokter).',
+      'd4': 'Langkah 5: Apoteker meracik obat secara higienis di laboratorium farmasi (▢ Task: Racik Kapsul Obat di Lane Apoteker).',
+      'd5': 'Langkah 6: Apoteker menempelkan label petunjuk dosis aturan pakai pada kemasan (▢ Task: Tempel Etiket Dosis di Lane Apoteker).',
+      'd6': 'Langkah 7: Pasien menerima obat sembuh dengan aman, proses tuntas (● End Event: Obat Diterima Pasien di Lane Pasien).'
     }
   },
 
@@ -477,7 +677,7 @@ const DISASTER_LEVELS = [
     difficulty: 'Boss Stage / Paralel & Timer (10 Langkah)',
     timeLimit: 360,
     story: 'Pesanan web membludak! Driver kurir malah nongkrong menunggu pizza selesai, padahal harusnya menyiapkan thermal bag & rute kurir secara paralel bersamaan saat koki memanggang pizza di oven!',
-    narrative: 'Siklus proses bisnis dimulai ketika Pesanan Web Diterima secara digital oleh sistem aplikasi. Pelanggan bersama sistem melakukan Konfirmasi Menu Pesanan dan titik lokasi pengantaran. Alur proses kemudian memasuki gateway Cabang Alur Paralel (+) yang memecah alur menjadi dua jalur yang berjalan serentak: di Lane Dapur, koki melakukan Panggang Adonan Pizza lalu proses tertahan oleh timer Tunggu 15 Menit Oven; di saat yang bersamaan di Lane Kurir, kurir melakukan Siapkan Armada & Rute dengan mengecek GPS dan memanaskan motor. Kedua jalur serentak ini disatukan kembali oleh gateway Gabung Alur Paralel (+) setelah pizza matang DAN kurir siap berangkat. Koki segera melakukan Kemas Kotak Pizza ke dalam kemasan thermal khusus. Kurir kemudian bergegas Antar Pizza ke Alamat tujuan pelanggan. Seluruh siklus proses tuntas saat Pesanan Selesai Diterima oleh pelanggan dengan hangat.',
+    narrative: 'Proses bisnis dimulai ketika Pesanan Web Diterima oleh sistem online (Start Event di Lane Pelanggan). Pelanggan bersama sistem melakukan Konfirmasi Menu Pesanan. Selanjutnya, alur memasuki Parallel Gateway Split (+) yang membagi proses menjadi DUA JALUR SERENTAK: di Lane Dapur, koki melakukan Panggang Adonan Pizza lalu tertahan oleh timer Tunggu 15 Menit Oven; secara bersamaan di Lane Kurir, kurir melakukan Siapkan Armada & Rute dengan menyiapkan motor dan rute jalan tercepat. Kedua alur serentak ini disatukan kembali oleh Parallel Gateway Join (+) setelah pizza matang DAN kurir siap berangkat. Koki segera melakukan Kemas Kotak Pizza, kurir bergegas melakukan Antar Pizza ke Alamat, dan alur selesai tuntas saat Pesanan Selesai Diterima oleh pelanggan (End Event).',
     
     pool: {
       name: 'POOL: LUIGI PIZZERIA & DELIVERY ONLINE',
@@ -493,8 +693,34 @@ const DISASTER_LEVELS = [
     parallelBranch: {
       splitCardId: 'p3',
       branch1CardIds: ['p4', 'p5'], // Dapur: Panggang Pizza -> Timer 15 Menit
+      branch1Label: '[Dapur]',
       branch2CardIds: ['p6'],       // Kurir: Siapkan Armada & Rute
+      branch2Label: '[Kurir]',
       joinCardId: 'p7'              // Gabung Alur Paralel (+)
+    },
+
+    // Kunci Routing & Ports Visual Alur Bersih (Default Solution Ports)
+    defaultEdgePorts: {
+      // Step 1 -> Step 2 (Pesanan Web -> Konfirmasi Menu)
+      'flow-arrow-0': { fromPort: 'right', toPort: 'left' },
+      // Step 2 -> Step 3 (Konfirmasi Menu -> Cabang Alur Paralel)
+      'flow-arrow-1': { fromPort: 'bottom', toPort: 'left' },
+      // Split Paralel -> Dapur (Step 3 -> Step 4 Panggang Pizza)
+      'flow-arrow-2-b1': { fromPort: 'right', toPort: 'left' },
+      // Step 4 Panggang Pizza -> Step 5 Timer 15 Menit Oven
+      'flow-arrow-3': { fromPort: 'right', toPort: 'left' },
+      // Split Paralel -> Kurir (Step 3 -> Step 6 Siapkan Armada)
+      'flow-arrow-2-b2': { fromPort: 'bottom', toPort: 'left' },
+      // Step 5 Timer Oven -> Step 7 Gabung Paralel
+      'flow-arrow-4-join': { fromPort: 'right', toPort: 'left' },
+      // Step 6 Siapkan Armada -> Step 7 Gabung Paralel
+      'flow-arrow-5-join': { fromPort: 'right', toPort: 'bottom' },
+      // Step 7 Gabung Paralel -> Step 8 Kemas Kotak Pizza
+      'flow-arrow-6': { fromPort: 'right', toPort: 'left' },
+      // Step 8 Kemas Kotak Pizza -> Step 9 Antar Pizza ke Alamat
+      'flow-arrow-7': { fromPort: 'bottom', toPort: 'left' },
+      // Step 9 Antar Pizza ke Alamat -> Step 10 Pesanan Selesai Diterima
+      'flow-arrow-8': { fromPort: 'right', toPort: 'bottom' }
     },
 
     initialCards: [
